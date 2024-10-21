@@ -16,11 +16,11 @@
 //___________________________________________________________________________________________________________
 //CONSTANTES ADAPTAVEIS (5,140,273)
 const int QUADRADO = 2; //tamanho da celula 
-const int ALTURA = 350; //altura matriz
-const int LARGURA = 682; //largura matriz
+const int ALTURA = 350; //altura matriz //350
+const int LARGURA = 682; //largura matriz 682
 const int LARGURA_DISPLAY = 1365; //largura da tela em pixels
 const int ALTURA_DISPLAY = 700; //altura da tela em pixels
-const int ALEATORIEDADE = 5; //chance em percentual  de uma celula ser gerada viva no mapa inicial
+const int ALEATORIEDADE = 50; //chance em percentual  de uma celula ser gerada viva no mapa inicial
 
 //Funcoes auxiliares__________________________________________________________________________________________
 //retorna o numero de vizinhos vivos
