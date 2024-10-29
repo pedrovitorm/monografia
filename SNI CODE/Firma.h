@@ -1,0 +1,150 @@
+#ifndef FIRMA_H
+#define FIRMA_H
+
+#include <vector>
+#include "Trabalhador.h"
+//#include "Pesquisador.h"
+
+class Firma {
+private:
+    double capital;               // Capital da firma
+    int estoque;               // Quantidade de bens estocados
+    std::vector<std::shared_ptr<Trabalhador>> trabalhadores; // Trabalhadores contratados
+    double disposicao_salario;
+    double preco_produto;
+    int quantidade_vendida;
+    //int complexidade_produto;  // Complexidade do bem produzido
+    //int trabalhadores_necessarios; // Quantidade de trabalhadores necessários
+    //std::vector<Pesquisador> pesquisadores; // Pesquisadores contratados
+    //bool financiamento;        // Se a firma está financiando suas operações
+
+public:
+    Firma(double capital_inicial, double _disposicao_salario, double _estoque_inicial) {
+        capital = capital_inicial;
+        estoque = _estoque_inicial;
+        disposicao_salario = _disposicao_salario;
+        preco_produto = 40;
+        quantidade_vendida = 0;
+    }
+
+    // Contrata pesquisadores para projetos de pesquisa
+    //void contratarPesquisadores(int numero_pesquisadores);
+
+    // Realiza pesquisa com uma probabilidade de sucesso
+    //void realizarProjetoPesquisa();
+
+    // Aumenta a produtividade da firma ao adquirir conhecimento
+    //void aumentarProdutividade(int aumento);
+
+    //Pagar salarios
+    void pagar_salarios();
+
+    void produzir();
+
+    // Calcula o lucro da firma
+    double calcularLucro();
+
+    // Armazena bens não vendidos
+    void armazenarProduto(int quantidade) {estoque += quantidade;}
+
+    void vender_produto(double valor) {estoque--;capital+=valor;quantidade_vendida++;}
+
+    //metodos para serem usados pelo MERCADO
+    // Contrata trabalhadores de acordo com a complexidade do produto
+    void contratar(std::shared_ptr<Trabalhador> trabalhador) {
+        trabalhadores.push_back(trabalhador);
+    }
+    double get_disposicao_salario() {return disposicao_salario;}
+    int get_quandidade_vendida(){return quantidade_vendida;}
+    int get_quantidade_trabalhadores(){return trabalhadores.size();}
+    void set_preco_produto(double valor){preco_produto = valor;}
+    double get_preco_produto(){return preco_produto;}
+    void set_quantidade_vendida(int quantidade){quantidade_vendida = quantidade;}
+    void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent;}
+    void set_disposicao_salario_decremento(double novo_percent){disposicao_salario -= disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
+    int get_estoque(){return estoque;}
+    double get_capital(){return capital;}
+
+    void imprime();
+
+    std::shared_ptr<Trabalhador> demite_menos_produtivo();
+};
+
+//IMPLEMENTACAO____________________________________________________________________________________
+void Firma::pagar_salarios(){
+    for(auto &trabalhador : trabalhadores){
+        //trabalhador->imprime();
+        trabalhador->pagar_salario(disposicao_salario);
+        capital -= disposicao_salario;
+        //trabalhador->imprime();
+    }
+}
+
+std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
+    if (trabalhadores.empty()) {
+        std::cout << "Nenhum trabalhador para demitir." << std::endl;
+        return NULL;
+    }
+
+    // Inicializa o índice do trabalhador menos produtivo
+    size_t indice_menos_produtivo = 0;
+    double produtividade_minima = trabalhadores[0]->get_produtividade();
+
+    // Itera sobre os trabalhadores para encontrar o menos produtivo
+    for (size_t i = 1; i < trabalhadores.size(); ++i) {
+        double produtividade_atual = trabalhadores[i]->get_produtividade();
+        if (produtividade_atual < produtividade_minima) {
+            indice_menos_produtivo = i; // Atualiza o índice do trabalhador menos produtivo
+            produtividade_minima = produtividade_atual;
+        }
+    }
+
+    // Armazena o trabalhador a ser demitido
+    auto trabalhador_demidido = trabalhadores[indice_menos_produtivo];
+
+    // Demite o trabalhador menos produtivo
+    std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
+    trabalhadores.erase(trabalhadores.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
+
+    // Retorna o trabalhador demitido
+    return trabalhador_demidido;
+}
+
+void Firma::produzir(){
+    int produtividade_total = 0;
+    for(auto &trabalhador : trabalhadores){
+        produtividade_total+= trabalhador->get_produtividade();
+    }
+
+    armazenarProduto(produtividade_total);
+
+    //lembrar de atualizar a quantidade vendida em cada iteracao
+    /* if(quantidade_vendida<produtividade_total){
+        armazenarProduto(produtividade_total-quantidade_vendida);
+    }
+    else{ //tira do estoque vou vende o estoque todo
+        if(quantidade_vendida > produtividade_total+estoque){
+            quantidade_vendida = produtividade_total+estoque;
+        }
+        else{
+            estoque -= quantidade_vendida-produtividade_total;
+        }
+    }
+
+    capital += produtividade_total*preco_produto*quantidade_vendida; */
+}
+
+double Firma::calcularLucro(){
+    produzir();
+    //vender();
+    pagar_salarios();
+    return capital;
+}
+
+void Firma::imprime(){
+    std::cout << "CAPITAL:" << capital << "|ESTOQUE:" << estoque << "|DISPOSICAO_SALARIO:" << disposicao_salario
+    << "|PRECO_PRODUTO:" << preco_produto << "|QUANTIDADE_VENDIDA:" << quantidade_vendida << 
+    "|NUM_TRABALHADORES:" << trabalhadores.size() << std::endl;
+}
+
+#endif
