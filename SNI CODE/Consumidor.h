@@ -26,9 +26,11 @@ public:
     double get_disposicao_produto(){return disposicao_produto;}
     void set_disposicao_produto(double valor) {disposicao_produto = valor;}
     int get_produtod_consumidos(){return produtos_consumidos;}
+    void set_produtos_consumidos(int valor){produtos_consumidos = valor;}
 
     // Decide se vai consumir bens com base na utilidade e preços
     void consumir(int preco_bem);
+    void reinicia_consumidos() {produtos_consumidos = 0;}
 
     //Recebe salario
     void pagar_salario(double valor){salario += valor;}

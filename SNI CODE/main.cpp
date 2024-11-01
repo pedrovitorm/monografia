@@ -15,7 +15,7 @@
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 500;
+const int NUM_ITERACOES = 200;
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
 // Função para criar as firmas com valores aleatórios com distribuição normal
@@ -23,10 +23,10 @@ void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
 
     //PARAMETROS FIRMAS
     const int NUM_FIRMAS = 2;
-    const double MEDIA_CAPITAL = 400; // Média para o capital
-    const double DESVIO_PADRAO_CAPITAL = 30.0; // Desvio padrão para o capital
+    const double MEDIA_CAPITAL = 4000; // Média para o capital
+    const double DESVIO_PADRAO_CAPITAL = 300.0; // Desvio padrão para o capital
     const double MEDIA_SALARIO = 30.0; // Média para o salário
-    const double DESVIO_PADRAO_SALARIO = 15.0; // Desvio padrão para o salário
+    const double DESVIO_PADRAO_SALARIO = 5.0; // Desvio padrão para o salário
     const int MEDIA_ESTOQUE_INICIAL = 10;
     const int DESVIO_PADRAO_ESTOQUE_INICIAL = 3;
 
@@ -60,9 +60,9 @@ void cria_trabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhadores
     const double MEDIA_PRODUTIVIDADE = 5.0; // Média para a produtividade
     const double DESVIO_PADRAO_PRODUTIVIDADE = 2.0; // Desvio padrão para a produtividade
     const double MEDIA_SALARIO = 30.0; // Média para o salário
-    const double DESVIO_PADRAO_SALARIO = 10.0; // Desvio padrão para o salário
-    const double MEDIA_RIQUEZA_INICIAL = 100.0;
-    const double DESVIO_PADRAO_RIQUEZA_INICIAL = 30.0;
+    const double DESVIO_PADRAO_SALARIO = 5.0; // Desvio padrão para o salário
+    const double MEDIA_RIQUEZA_INICIAL = 1000.0;
+    const double DESVIO_PADRAO_RIQUEZA_INICIAL = 300.0;
     const double MEDIA_DISPOSICAO_PRODUTO = 40;
     const double DESVIO_PADRAO_PRODUTO = 10;
 
@@ -111,8 +111,6 @@ int main() {//__________________________________________________________________
     for (int iteracao = 0; iteracao < NUM_ITERACOES; iteracao++) {
         std::cout << "Iteracao " << iteracao + 1 << " ------------------------------------------" << std::endl;
 
-        mercado.imprime_mercado();
-
         std::cout << "FIRMAS DEMITEM_____________________________________________________" << std::endl;
         mercado.firmas_demitem();
 
@@ -123,6 +121,10 @@ int main() {//__________________________________________________________________
         std::cout << "TRABALHADORES CONSOMEM_____________________________________________________" << std::endl;
         // Trabalhadores consomem bens no mercado
         mercado.trabalhadores_consomem();
+
+        std::cout << "TRABALHADORES SE DEMITEM_____________________________________________________" << std::endl;
+        // Trabalhadores saem das firmas se seu consumo for 0
+        //mercado.trabalhadores_se_demitem();
 
         std::cout << "FIRMAS PRODUZEM_____________________________________________________" << std::endl;
         // Firmas produzem
@@ -138,6 +140,8 @@ int main() {//__________________________________________________________________
         //comportamentos esperados
         //trabalhadores com maior produtividade recebem salarios mais altos
         //empresas com trabalhadores produtivos vendem produtos mais baratos (homogeneos)
+
+        mercado.imprime_mercado();
         
         std::cout << "Fim da iteracao " << iteracao + 1 << " -----------------------------------" << "\n" << std::endl;
     }

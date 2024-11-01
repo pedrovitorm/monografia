@@ -39,7 +39,7 @@ public:
     //Pagar salarios
     void pagar_salarios();
 
-    void produzir();
+    int produzir();
 
     // Calcula o lucro da firma
     double calcularLucro();
@@ -54,6 +54,10 @@ public:
     void contratar(std::shared_ptr<Trabalhador> trabalhador) {
         trabalhadores.push_back(trabalhador);
     }
+
+    void demite(std::shared_ptr<Trabalhador> trabalhador);
+    std::shared_ptr<Trabalhador> querem_ser_demitidos();
+
     double get_disposicao_salario() {return disposicao_salario;}
     int get_quandidade_vendida(){return quantidade_vendida;}
     int get_quantidade_trabalhadores(){return trabalhadores.size();}
@@ -110,14 +114,39 @@ std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
     return trabalhador_demidido;
 }
 
-void Firma::produzir(){
+void Firma::demite(std::shared_ptr<Trabalhador> trabalhador){
+    int indice = -1;
+    for (int i = 0; i < trabalhadores.size(); ++i){
+        if(trabalhadores[i]->igual(trabalhador)){
+            indice = i;
+            std::cout << "entrei2" << std::endl;
+            break;
+        }
+    }
+    if(indice = -1) return;
+    trabalhadores.erase(trabalhadores.begin() + indice);   
+}
+
+std::shared_ptr<Trabalhador> Firma::querem_ser_demitidos(){
+    for(auto &trabalhador : trabalhadores){
+        if(trabalhador->get_quer_se_demitir()){
+            demite(trabalhador);
+            return trabalhador;
+        }
+    }
+    return nullptr;
+}
+
+int Firma::produzir(){
     int produtividade_total = 0;
     for(auto &trabalhador : trabalhadores){
         produtividade_total+= trabalhador->get_produtividade();
+        trabalhador->adiciona_ano_empresa();
     }
 
     armazenarProduto(produtividade_total);
 
+    return produtividade_total;
     //lembrar de atualizar a quantidade vendida em cada iteracao
     /* if(quantidade_vendida<produtividade_total){
         armazenarProduto(produtividade_total-quantidade_vendida);
