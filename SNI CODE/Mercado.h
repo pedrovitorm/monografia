@@ -84,6 +84,8 @@ public:
             soma_salarios += trabalhador->get_disposicao_salario(); // Supondo que Trabalhador tenha getSalario()
         }
 
+        if(soma_salarios<0.0001) soma_salarios = 0;
+
         return soma_salarios / trabalhadores_empregados.size();
     }
     double get_preco_medio(){
@@ -94,7 +96,41 @@ public:
             soma_precos += firma->get_preco_produto(); // Supondo que Bem tenha getPreco()
         }
 
+        if(soma_precos<0.0001) soma_precos = 0;
+
         return soma_precos / firmas.size();
+    }
+    double get_capital_medio(){
+        double soma_capitais = 0.0;
+        if (firmas.empty()) return 0.0; // Evitar divisão por zero
+
+        for (auto& firma : firmas) {
+            soma_capitais += firma->get_capital(); // Supondo que Firma tenha getCapitalInicial()
+        }
+
+        if(soma_capitais<0.0001) soma_capitais = 0;
+
+        return soma_capitais / firmas.size();
+    }
+    double get_riqueza_media(){
+        double soma_riquezas = 0.0;
+        if (trabalhadores_empregados.empty()) return 0.0; // Evitar divisão por zero
+
+        for (auto& trabalhador : trabalhadores_empregados) {
+            soma_riquezas += trabalhador->get_salario(); // Supondo que Trabalhador tenha getRiquezaInicial()
+        }
+
+        if(soma_riquezas<0.0001) soma_riquezas = 0;
+
+        return soma_riquezas / trabalhadores_empregados.size();
+    }
+    int get_estoques(){
+            int soma_estoques = 0;
+        for (auto& firma : firmas) {
+            soma_estoques += firma->get_estoque();
+        }
+
+        return soma_estoques;
     }
 };
 
@@ -238,7 +274,7 @@ void Mercado::trabalhadores_consomem(){
                     firma->set_preco_produto(firma->get_preco_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 } else if(disposicao_produto < preco_produto && trabalhador->get_salario() >= preco_produto){
-                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO*(firma->get_estoque()/100));
+                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO*((firma->get_estoque()/100)>1?(firma->get_estoque()/100):1));
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 }
                 else{
@@ -347,8 +383,6 @@ void Mercado::imprime_mercado(){
     std::cout << "demitidos: " << demitidos << std::endl;
     std::cout << "produzidos: " << produzidos << std::endl;
     std::cout << "consumidos: " << consumidos << std::endl;
-
-    reinicia_dados();
 }
 
 void Mercado::imprime_mercado_csv(const std::string& nome_arquivo, int iteracao) {
@@ -361,7 +395,8 @@ void Mercado::imprime_mercado_csv(const std::string& nome_arquivo, int iteracao)
 
     // Escrever salário médio e preço médio
     arquivo << iteracao  << ',' << get_salario_medio() << ',' << get_preco_medio() << ',' << get_produzidos() << ',' <<
-    get_consumidos() << ',' << get_contratados() << ',' << get_demitidos() << '\n';
+    get_consumidos() << ',' << get_contratados() << ',' << get_demitidos() << ',' << get_estoques() << ',' <<
+    get_capital_medio() << ',' << get_riqueza_media() <<'\n';
 
     arquivo.flush(); //forca a escrita no arquivo???
 

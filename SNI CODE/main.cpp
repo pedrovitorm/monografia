@@ -19,8 +19,8 @@
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 10;
-const int TEMPO_ATUALIZACAO = 100; //tempo de atualizacao da simulacao em milisegundos
+const int NUM_ITERACOES = 500;
+const int TEMPO_ATUALIZACAO = 50; //tempo de atualizacao da simulacao em milisegundos
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
 // Função para criar as firmas com valores aleatórios com distribuição normal
@@ -119,7 +119,7 @@ void adicionarCabecalho(const std::string& nome_arquivo) {
     }
 
     // Escrever o cabeçalho
-    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos\n";
+    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos,estoques,capital medio,riqueza media\n";
 
     // Escrever o conteúdo original de volta ao arquivo
     arquivoSaida << conteudo.str();
@@ -187,7 +187,8 @@ int main() {//__________________________________________________________________
         //empresas com trabalhadores produtivos vendem produtos mais baratos (homogeneos)
 
         mercado.imprime_mercado_csv("mercado.csv",iteracao);
-        mercado.imprime_mercado(); //CUIDADO! essa funcao reinicia os dados do mercado, deve ficar na ultima linha
+        mercado.imprime_mercado();
+        mercado.reinicia_dados(); //nao tire essa funcao para nao acumular os dados
         
         std::cout << "Fim da iteracao " << iteracao + 1 << " -----------------------------------" << "\n" << std::endl;
     

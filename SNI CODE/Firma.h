@@ -61,10 +61,16 @@ public:
     double get_disposicao_salario() {return disposicao_salario;}
     int get_quandidade_vendida(){return quantidade_vendida;}
     int get_quantidade_trabalhadores(){return trabalhadores.size();}
-    void set_preco_produto(double valor){preco_produto = valor;}
+    void set_preco_produto(double valor){
+        if(valor<0.0001){
+            preco_produto = 0;
+            return;
+        }  
+        preco_produto = valor;
+    }
     double get_preco_produto(){return preco_produto;}
     void set_quantidade_vendida(int quantidade){quantidade_vendida = quantidade;}
-    void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent;}
+    void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
     void set_disposicao_salario_decremento(double novo_percent){disposicao_salario -= disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
     int get_estoque(){return estoque;}
     double get_capital(){return capital;}

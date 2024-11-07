@@ -7,7 +7,7 @@ set autoscale
 set grid
 
 i = 0
-max_iter = 100  # Definir número máximo de iterações
+max_iter = 500  # Definir número máximo de iterações
 
 # Loop para atualizar o gráfico por um número definido de iterações
 while (i < max_iter) {
@@ -16,8 +16,11 @@ while (i < max_iter) {
          'mercado.csv' using 1:4 with lines title "Produzidos" lt rgb "green", \
          'mercado.csv' using 1:5 with lines title "Consumidos" lt rgb "purple", \
          'mercado.csv' using 1:6 with lines title "Contratados" lt rgb "orange", \
-         'mercado.csv' using 1:7 with lines title "Demitidos" lt rgb "brown"
-    pause 0.1
+         'mercado.csv' using 1:7 with lines title "Demitidos" lt rgb "brown", \
+         #'mercado.csv' using 1:8 with lines title "Estoques" lt rgb "cyan", \
+         #'mercado.csv' using 1:9 with lines title "Capital Medio" lt rgb "magenta", \
+         'mercado.csv' using 1:10 with lines title "Riqueza Media" lt rgb "yellow"
+    pause 0.05
     i = i + 1
 }
 

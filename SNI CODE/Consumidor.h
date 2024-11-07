@@ -17,14 +17,26 @@ public:
     Consumidor(double _salario, double _riqueza_inicial, double _disposicao_produto): 
     disposicao_salario(_salario) {produtos_consumidos = 0; poupanca = 0;salario=0;salario = _riqueza_inicial;disposicao_produto = _disposicao_produto;};
 
-    void set_salario(double valor){salario = valor;}
+    void set_salario(double valor){
+        if(valor<0.0001){
+            salario = 0;
+            return;
+        }  
+        salario = valor;
+    }
     void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent;}
     void set_disposicao_salario_decremento(double novo_percent){disposicao_salario -= disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
     double get_salario(){return salario;}
     double get_disposicao_salario(){return disposicao_salario;}
     double get_poupanca(){return poupanca;}
     double get_disposicao_produto(){return disposicao_produto;}
-    void set_disposicao_produto(double valor) {disposicao_produto = valor;}
+    void set_disposicao_produto(double valor) {
+        if(valor<0.0001){
+            disposicao_produto = 0;
+            return;
+        }  
+        disposicao_produto = valor;
+    }
     int get_produtod_consumidos(){return produtos_consumidos;}
     void set_produtos_consumidos(int valor){produtos_consumidos = valor;}
 

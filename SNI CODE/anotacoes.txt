@@ -1,0 +1,12 @@
+fazer com que firmas demitam todos os funcionarios depois de produzir e pagar salarios
+
+mudar comportamento da disposicao salarial e de precos do trabalhador
+(aumenta ou diminui disposicao de preco de acordo com tempo sem consumir e salario)
+(aumenta ou diminui disposicao salarial de acordo com negociacoes no mercado)
+
+firma diminui ou aumenta disposicao salarial de acordo com os Estoques
+
+problemas: 
+salarios muito rigidos
+precos muito baixos
+comportamento explosivo
