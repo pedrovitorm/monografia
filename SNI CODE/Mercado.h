@@ -6,11 +6,13 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <fstream>
 #include "Firma.h"
 #include "Trabalhador.h"
 
 class Mercado {
 private:
+    //VETORES DE TRABALHADORES EMPREGADOS/DESEMPREGADOS E FIRMAS
     std::vector<std::shared_ptr<Trabalhador>> trabalhadores_no_mercado; // Trabalhadores disponíveis
     std::vector<std::shared_ptr<Trabalhador>> trabalhadores_empregados; // Trabalhadores empregados
     std::vector<std::shared_ptr<Firma>> firmas;           // Lista de Firmas
@@ -28,14 +30,12 @@ private:
     int consumidos;
 
 public:
-    Mercado() {contratados = demitidos = produzidos = consumidos = 0;} // Inicializa com valores padrão
 
+    //FUNCOES GERAIS__________________________________________________________________________________
+    Mercado() {contratados = demitidos = produzidos = consumidos = 0;} // Inicializa com valores padrão
     void reinicia_dados(){contratados = demitidos = produzidos = consumidos = 0;}
 
-    // Adicionar trabalhadores e Firmas ao mercado
-    void adicionarTrabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhador) {
-        trabalhadores_no_mercado = trabalhador;
-    }
+    //FIRMAS_________________________________________________________________________________________
     void adicionarFirmas(std::vector<std::shared_ptr<Firma>>& firma) {
         firmas = firma;
     }
@@ -55,17 +55,52 @@ public:
     void firmas_contratam();
     void firmas_demitem();
 
+    //TRABALHADORES__________________________________________________________________________________________
+    // Adicionar trabalhadores
+    void adicionarTrabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhador) {
+        trabalhadores_no_mercado = trabalhador;
+    }
+
     void trabalhadores_consomem();
 
     void trabalhadores_se_demitem();
 
+    //FUNCOES PARA FORNECER DADOS DO MERCADO__________________________________________________________________
     void imprime_mercado();
-
-
     std::vector<std::shared_ptr<Firma>>& firmas_mercado() { return firmas; }
     std::vector<std::shared_ptr<Trabalhador>>& trabalhadores_mercado() { return trabalhadores_no_mercado; }
+    void imprime_mercado_csv(const std::string& nome_arquivo, int iteracao);
+
+    //GETS
+    int get_contratados() {return contratados;}
+    int get_demitidos() {return demitidos;}
+    int get_produzidos() {return produzidos;}
+    int get_consumidos() {return consumidos;}
+    double get_salario_medio(){
+        double soma_salarios = 0.0;
+        if (trabalhadores_empregados.empty()) return 0.0; // Evitar divisão por zero
+
+        for (auto& trabalhador : trabalhadores_empregados) {
+            soma_salarios += trabalhador->get_disposicao_salario(); // Supondo que Trabalhador tenha getSalario()
+        }
+
+        return soma_salarios / trabalhadores_empregados.size();
+    }
+    double get_preco_medio(){
+        double soma_precos = 0.0;
+        if (firmas.empty()) return 0.0; // Evitar divisão por zero
+
+        for (auto& firma : firmas) {
+            soma_precos += firma->get_preco_produto(); // Supondo que Bem tenha getPreco()
+        }
+
+        return soma_precos / firmas.size();
+    }
 };
 
+//IMPLEMENTACOES________________________________________________________________________________________________
+
+//FUNCAO PARA FIRMAS CONTRATAREM
 void Mercado::firmas_contratam() {
     std::random_device rd; //definir seed para manter aleatoriedade
     std::mt19937 gen(rd());
@@ -126,6 +161,7 @@ void Mercado::firmas_contratam() {
     //std::cout << "CONTRATADOS: " << contratados << " | RECUSADOS: " << recusados << std::endl;
 }
 
+//FUNCAO PARA FIRMAS DEMITIREM
 void Mercado::firmas_demitem(){
     for(auto &firma : firmas){
 
@@ -156,6 +192,7 @@ void Mercado::firmas_demitem(){
     }
 }
 
+//FUNCAO PARA TRABALHADORES CONSUMIREM
 void Mercado::trabalhadores_consomem(){
     // Gerador de números aleatórios para selecionar firmas aleatoriamente
     std::random_device rd;
@@ -263,6 +300,7 @@ void Mercado::trabalhadores_consomem(){
     }
 }
 
+//FUNCAO PARA TRABALHADORES SE DEMITIREM
 void Mercado::trabalhadores_se_demitem(){
     for (size_t i = 0; i < trabalhadores_empregados.size(); i++) {
         auto& trabalhador = trabalhadores_empregados[i];
@@ -285,6 +323,7 @@ void Mercado::trabalhadores_se_demitem(){
     }
 }
 
+//FUNCAO PARA IMPRIMIR OS DADOS NO TERMINAL
 void Mercado::imprime_mercado(){
     //imprime trabalhadores e firmas
     std::cout << "TRABALHADORES EMPREGADOS_____________________________________________________" << std::endl;
@@ -310,6 +349,24 @@ void Mercado::imprime_mercado(){
     std::cout << "consumidos: " << consumidos << std::endl;
 
     reinicia_dados();
+}
+
+void Mercado::imprime_mercado_csv(const std::string& nome_arquivo, int iteracao) {
+    std::ofstream arquivo(nome_arquivo, std::ios::app);
+
+    if (!arquivo.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo para escrita.\n";
+        return;
+    }
+
+    // Escrever salário médio e preço médio
+    arquivo << iteracao  << ',' << get_salario_medio() << ',' << get_preco_medio() << ',' << get_produzidos() << ',' <<
+    get_consumidos() << ',' << get_contratados() << ',' << get_demitidos() << '\n';
+
+    arquivo.flush(); //forca a escrita no arquivo???
+
+    arquivo.close();
+    std::cout << "Dados do mercado exportados para " << nome_arquivo << " com sucesso.\n";
 }
 
 #endif // MERCADO_H

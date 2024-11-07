@@ -1,21 +1,26 @@
 #include <iostream>
 #include <vector>
-#include <memory>
+#include <memory> //smart pointers
 #include <random>
-#include <ctime>
+#include <ctime> //tempo do pc para funcao random
+#include <fstream> //escrito no .csv
+#include <sstream> //uso de strings
+#include <chrono> // Para usar o sleep
+#include <thread> // Para usar o sleep_for
 #include "Firma.h"
 #include "Trabalhador.h"
 #include "Mercado.h"
 #include "Consumidor.h" //ja incluso em Trabalhador e Pesquisador
 
-//Agentes em implementacao
+//Agentes ainda em implementacao
 //#include "Universidade.h"
 //#include "Pesquisador.h"
 //#include "Governo.h"
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 200;
+const int NUM_ITERACOES = 10;
+const int TEMPO_ATUALIZACAO = 100; //tempo de atualizacao da simulacao em milisegundos
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
 // Função para criar as firmas com valores aleatórios com distribuição normal
@@ -92,6 +97,36 @@ void cria_trabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhadores
     }
 }
 
+// Função para adicionar o cabeçalho após a simulação
+void adicionarCabecalho(const std::string& nome_arquivo) {
+    // Abrir o arquivo em modo de leitura
+    std::ifstream arquivoEntrada(nome_arquivo);
+    if (!arquivoEntrada.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo para leitura.\n";
+        return;
+    }
+
+    // Carregar o conteúdo do arquivo em uma string temporária
+    std::ostringstream conteudo;
+    conteudo << arquivoEntrada.rdbuf();  // Lê o conteúdo completo para a string
+    arquivoEntrada.close();
+
+    // Abrir o arquivo novamente em modo de escrita para sobrescrever
+    std::ofstream arquivoSaida(nome_arquivo);
+    if (!arquivoSaida.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo para escrita.\n";
+        return;
+    }
+
+    // Escrever o cabeçalho
+    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos\n";
+
+    // Escrever o conteúdo original de volta ao arquivo
+    arquivoSaida << conteudo.str();
+    arquivoSaida.close();
+    std::cout << "Cabecalho adicionado com sucesso no arquivo " << nome_arquivo << ".\n";
+}
+
 int main() {//________________________________________________________________________________________________
     // Cria vetores para armazenar Firmas e Trabalhadores
     std::vector<std::shared_ptr<Firma>> firmas;
@@ -105,6 +140,16 @@ int main() {//__________________________________________________________________
 
     mercado.adicionarFirmas(firmas);
     mercado.adicionarTrabalhadores(trabalhadores);
+
+    //Arquivo de saida
+    // Abrir o arquivo CSV para escrita
+    std::ofstream outFile("mercado.csv");
+
+    // Verificar se o arquivo foi aberto corretamente
+    if (!outFile) {
+        std::cerr << "Não foi possível abrir o arquivo!" << std::endl;
+        return 1;
+    }
 
     //ITERACOES______________________________________________________________________________________________
     // Simulação de algumas iterações
@@ -141,10 +186,18 @@ int main() {//__________________________________________________________________
         //trabalhadores com maior produtividade recebem salarios mais altos
         //empresas com trabalhadores produtivos vendem produtos mais baratos (homogeneos)
 
-        mercado.imprime_mercado();
+        mercado.imprime_mercado_csv("mercado.csv",iteracao);
+        mercado.imprime_mercado(); //CUIDADO! essa funcao reinicia os dados do mercado, deve ficar na ultima linha
         
         std::cout << "Fim da iteracao " << iteracao + 1 << " -----------------------------------" << "\n" << std::endl;
+    
+        // Pausar a execução
+        std::this_thread::sleep_for(std::chrono::milliseconds(TEMPO_ATUALIZACAO));
     }
+
+    //outFile << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos\n";
+    // Adiciona o cabeçalho ao final de todas as iterações
+    adicionarCabecalho("mercado.csv");
 
     return 0;
 }

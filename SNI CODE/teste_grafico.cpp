@@ -22,7 +22,7 @@ int main() {
         outFile << x << "," << y << "\n";  
         outFile.flush();  // Força a escrita no arquivo
 
-        // Pausar a execução por 1 segundo
+        // Pausar a execução
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
         // Imprimir no console para acompanhar o progresso
