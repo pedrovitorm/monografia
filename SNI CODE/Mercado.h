@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <random>
 #include <fstream>
+#include <cmath>
 #include "Firma.h"
 #include "Trabalhador.h"
 
@@ -18,10 +19,13 @@ private:
     std::vector<std::shared_ptr<Firma>> firmas;           // Lista de Firmas
 
     //PARAMETROS DO MERCADO
-    const double AJUSTE_FIXO = 0.2; //PARAMETRO DE AJUSTE DE SALARIOS
-    const double AJUSTE_FIXO_PRECO = 0.05; //PARAMETRO AJUSTE PRECOS
+    const double AJUSTE_FIXO = 0.05; //PARAMETRO DE AJUSTE DE SALARIOS
+    const double AJUSTE_FIXO_TRABALHADOR = 0.07; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
+    const double AJUSTE_FIXO_PRECO = 0.1; //PARAMETRO AJUSTE PRECOS
     const int ESTOQUE_MAX = 100; //QUANTIDADE DE ESTOQUE MAXIMO ATE A FIRMA DEMITIR UM TRABALHADOR
-    const int TENTATIVAS_COMPRA_MAX = 1000; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
+    const int TENTATIVAS_COMPRA_MAX = 100; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
+    const int TENTATIVAS_CONTRATACAO_MAX = 5; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
+    const double AJUSTE_FIXO_ESTOQUES = 0.05;
 
     //DADOS DO MERCADO EM CADA ITERACAO
     int contratados;
@@ -54,6 +58,7 @@ public:
 
     void firmas_contratam();
     void firmas_demitem();
+    void firmas_demitem_todos();
 
     //TRABALHADORES__________________________________________________________________________________________
     // Adicionar trabalhadores
@@ -145,53 +150,57 @@ void Mercado::firmas_contratam() {
 
     // Iterar sobre todas as firmas
     for (auto& firma : firmas) {
-        // Verificar se há trabalhadores disponíveis
-        if (trabalhadores_no_mercado.empty()) {
-            //std::cout << "Nenhum trabalhador disponivel no mercado." << std::endl;
-            return;
-        }
 
-        // Selecionar um trabalhador aleatório
-        std::uniform_int_distribution<> distrib(0, trabalhadores_no_mercado.size() - 1);
-        int indiceTrabalhador = distrib(gen);
+        for(int i=0;i<TENTATIVAS_CONTRATACAO_MAX;i++){
 
-        //std::cout << "Tamanho antes da contratacao/recusa: " << trabalhadores_no_mercado.size() << std::endl;
+            // Verificar se há trabalhadores disponíveis
+            if (trabalhadores_no_mercado.empty()) {
+                //std::cout << "Nenhum trabalhador disponivel no mercado." << std::endl;
+                return;
+            }
 
-        // Obter o trabalhador aleatório
-        auto& trabalhador = trabalhadores_no_mercado[indiceTrabalhador];
+            // Selecionar um trabalhador aleatório
+            std::uniform_int_distribution<> distrib(0, trabalhadores_no_mercado.size() - 1);
+            int indiceTrabalhador = distrib(gen);
 
-        // Comparar a disposição do trabalhador com o salário oferecido pela firma
-        if (trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario() && firma->get_capital()>0) {
-            // O trabalhador aceita o salário e é contratado
-            firma->contratar(trabalhador);
-            trabalhadores_empregados.push_back(trabalhador);
-            contratados++;
-            //std::cout << "Trabalhador contratado pela firma " << std::endl;
+            //std::cout << "Tamanho antes da contratacao/recusa: " << trabalhadores_no_mercado.size() << std::endl;
 
-            // Ajustar a disposição do trabalhador (aumenta após ser contratado)
-            trabalhador->set_disposicao_salario_incremento(AJUSTE_FIXO);
-            trabalhador->reinicia_ano_empresa();
+            // Obter o trabalhador aleatório
+            auto& trabalhador = trabalhadores_no_mercado[indiceTrabalhador];
 
-            // Ajustar a disposição da firma (diminui após contratar)
-            firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
+            // Comparar a disposição do trabalhador com o salário oferecido pela firma
+            if (trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario() && firma->get_capital()>0) {
+                // O trabalhador aceita o salário e é contratado
+                firma->contratar(trabalhador);
+                trabalhadores_empregados.push_back(trabalhador);
+                contratados++;
+                //std::cout << "Trabalhador contratado pela firma " << std::endl;
 
-            // Remover o trabalhador da lista de disponíveis
-            trabalhadores_no_mercado.erase(trabalhadores_no_mercado.begin() + indiceTrabalhador);
+                // Ajustar a disposição do trabalhador (aumenta após ser contratado)
+                trabalhador->set_disposicao_salario_incremento(AJUSTE_FIXO_TRABALHADOR);
+                trabalhador->reinicia_ano_empresa();
 
-        } else if(trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario() && firma->get_capital()<=0){
-            // Ajustar a disposição da firma (diminui após nao ter dinheiro para contratar)
-            firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
-        } else if(trabalhador->get_disposicao_salario() > firma->get_disposicao_salario()){
-            // Trabalhador rejeita o salário
-            //std::cout << "Trabalhador recusou a oferta da firma " << std::endl;
+                // Ajustar a disposição da firma (diminui após contratar)
+                firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
 
-            // Ajustar a disposição do trabalhador (diminui após rejeitar oferta)
-            trabalhador->set_disposicao_salario_decremento(AJUSTE_FIXO);
+                // Remover o trabalhador da lista de disponíveis
+                trabalhadores_no_mercado.erase(trabalhadores_no_mercado.begin() + indiceTrabalhador);
 
-            // Ajustar a disposição da firma (aumenta após fracasso em contratação)
-            firma->set_disposicao_salario_incremento(AJUSTE_FIXO);
+            } else if(trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario() && firma->get_capital()<=0){
+                // Ajustar a disposição da firma (diminui após nao ter dinheiro para contratar)
+                firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
+            } else if(trabalhador->get_disposicao_salario() > firma->get_disposicao_salario()){
+                // Trabalhador rejeita o salário
+                //std::cout << "Trabalhador recusou a oferta da firma " << std::endl;
 
-            recusados++;
+                // Ajustar a disposição do trabalhador (diminui após rejeitar oferta)
+                trabalhador->set_disposicao_salario_decremento(AJUSTE_FIXO);
+
+                // Ajustar a disposição da firma (aumenta após fracasso em contratação)
+                firma->set_disposicao_salario_incremento(AJUSTE_FIXO);
+
+                recusados++;
+            }
         }
     }
     //std::cout << "CONTRATADOS: " << contratados << " | RECUSADOS: " << recusados << std::endl;
@@ -211,7 +220,7 @@ void Mercado::firmas_demitem(){
             //demite o trabalhador menos produtivo
             auto trabalhador = firma->demite_menos_produtivo();
             demitidos++;
-            trabalhador->set_disposicao_salario_decremento(AJUSTE_FIXO);
+            //trabalhador->set_disposicao_salario_decremento(AJUSTE_FIXO_TRABALHADOR);
             trabalhadores_no_mercado.push_back(trabalhador);
             
             trabalhadores_empregados.erase(
@@ -223,7 +232,31 @@ void Mercado::firmas_demitem(){
             );
 
             //diminui disposicao salarial
-            firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
+            //firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
+        }
+    }
+}
+
+//FUNCAO PARA FIRMAS DEMITIREM TODOS OS FUNCIONARIOS EM CADA ITERACAO
+void Mercado::firmas_demitem_todos(){
+    for(auto &firma : firmas){
+        while(firma->get_quantidade_trabalhadores()>0){
+            //demite o trabalhador menos produtivo
+            auto trabalhador = firma->demite_menos_produtivo();
+            demitidos++;
+            //trabalhador->set_disposicao_salario_decremento(AJUSTE_FIXO_TRABALHADOR);
+            trabalhadores_no_mercado.push_back(trabalhador);
+            
+            trabalhadores_empregados.erase(
+                std::remove_if(trabalhadores_empregados.begin(), trabalhadores_empregados.end(),
+                            [&trabalhador](const std::shared_ptr<Trabalhador>& emp) {
+                                return emp == trabalhador; // Compara os shared_ptr
+                            }),
+                trabalhadores_empregados.end()
+            );
+
+            //diminui disposicao salarial
+            //firma->set_disposicao_salario_decremento(AJUSTE_FIXO);
         }
     }
 }
@@ -260,21 +293,23 @@ void Mercado::trabalhadores_consomem(){
                 if (disposicao_produto >= preco_produto && trabalhador->get_salario() >= preco_produto) {
                     // O trabalhador compra o produto
 
-                    std::cout << "Trabalhador empregado comprou: " 
+                    /* std::cout << "Trabalhador empregado comprou: " 
                     << "Salario: " << trabalhador->get_salario() 
                     << ", Disposicao: " << trabalhador->get_disposicao_produto() 
                     << ", Preco: " << firma->get_preco_produto() 
-                    << ", Estoque: " << firma->get_estoque() << std::endl;
+                    << ", Estoque: " << firma->get_estoque() << std::endl; */
 
                     trabalhador->consumir(preco_produto);
                     consumidos++;
                     firma->vender_produto(preco_produto);
 
                     // Ajusta o preço do produto e a disposição a pagar
+                    // Firma aumenta a preco devido a demanda
                     firma->set_preco_produto(firma->get_preco_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
+                    
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 } else if(disposicao_produto < preco_produto && trabalhador->get_salario() >= preco_produto){
-                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO*((firma->get_estoque()/100)>1?(firma->get_estoque()/100):1));
+                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_ESTOQUES*(std::log(firma->get_estoque()>3?firma->get_estoque():3)));
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 }
                 else{
@@ -319,7 +354,7 @@ void Mercado::trabalhadores_consomem(){
                     firma->set_preco_produto(firma->get_preco_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 } else if(disposicao_produto < preco_produto && trabalhador->get_salario() >= preco_produto){
-                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
+                    firma->set_preco_produto(firma->get_preco_produto()-firma->get_preco_produto()*AJUSTE_FIXO_ESTOQUES*(std::log(firma->get_estoque()>3?firma->get_estoque():3)));
                     trabalhador->set_disposicao_produto(trabalhador->get_disposicao_produto()+firma->get_preco_produto()*AJUSTE_FIXO_PRECO);
                 }
                 else{
@@ -345,7 +380,6 @@ void Mercado::trabalhadores_se_demitem(){
         if (trabalhador->get_quer_se_demitir()) {
             // Remove o trabalhador da firma
             for (auto& firma : firmas) {
-                std::cout << "entrei" << std::endl;
                 firma->demite(trabalhador);
                 demitidos++;
             }

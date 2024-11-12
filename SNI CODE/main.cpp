@@ -19,7 +19,7 @@
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 500;
+const int NUM_ITERACOES = 250;
 const int TEMPO_ATUALIZACAO = 50; //tempo de atualizacao da simulacao em milisegundos
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
@@ -27,7 +27,7 @@ const int TEMPO_ATUALIZACAO = 50; //tempo de atualizacao da simulacao em miliseg
 void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
 
     //PARAMETROS FIRMAS
-    const int NUM_FIRMAS = 2;
+    const int NUM_FIRMAS = 20;
     const double MEDIA_CAPITAL = 4000; // Média para o capital
     const double DESVIO_PADRAO_CAPITAL = 300.0; // Desvio padrão para o capital
     const double MEDIA_SALARIO = 30.0; // Média para o salário
@@ -61,7 +61,7 @@ void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
 
 void cria_trabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhadores) {
     // Parâmetros para a criação dos trabalhadores
-    const int NUM_TRABALHADORES = 5;
+    const int NUM_TRABALHADORES = 500;
     const double MEDIA_PRODUTIVIDADE = 5.0; // Média para a produtividade
     const double DESVIO_PADRAO_PRODUTIVIDADE = 2.0; // Desvio padrão para a produtividade
     const double MEDIA_SALARIO = 30.0; // Média para o salário
@@ -157,7 +157,7 @@ int main() {//__________________________________________________________________
         std::cout << "Iteracao " << iteracao + 1 << " ------------------------------------------" << std::endl;
 
         std::cout << "FIRMAS DEMITEM_____________________________________________________" << std::endl;
-        mercado.firmas_demitem();
+        mercado.firmas_demitem_todos();
 
         std::cout << "FIRMAS CONTRATAM_____________________________________________________" << std::endl;
         // Firmas contratam trabalhadores
@@ -187,7 +187,7 @@ int main() {//__________________________________________________________________
         //empresas com trabalhadores produtivos vendem produtos mais baratos (homogeneos)
 
         mercado.imprime_mercado_csv("mercado.csv",iteracao);
-        mercado.imprime_mercado();
+        //mercado.imprime_mercado();
         mercado.reinicia_dados(); //nao tire essa funcao para nao acumular os dados
         
         std::cout << "Fim da iteracao " << iteracao + 1 << " -----------------------------------" << "\n" << std::endl;

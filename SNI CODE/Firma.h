@@ -92,7 +92,7 @@ void Firma::pagar_salarios(){
 
 std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
     if (trabalhadores.empty()) {
-        std::cout << "Nenhum trabalhador para demitir." << std::endl;
+        //std::cout << "Nenhum trabalhador para demitir." << std::endl;
         return NULL;
     }
 
@@ -113,7 +113,7 @@ std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
     auto trabalhador_demidido = trabalhadores[indice_menos_produtivo];
 
     // Demite o trabalhador menos produtivo
-    std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
+    //std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
     trabalhadores.erase(trabalhadores.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
 
     // Retorna o trabalhador demitido
