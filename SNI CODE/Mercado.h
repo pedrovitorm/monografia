@@ -22,7 +22,6 @@ private:
     const double AJUSTE_FIXO = 0.05; //PARAMETRO DE AJUSTE DE SALARIOS
     const double AJUSTE_FIXO_TRABALHADOR = 0.07; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
     const double AJUSTE_FIXO_PRECO = 0.1; //PARAMETRO AJUSTE PRECOS
-    const int ESTOQUE_MAX = 100; //QUANTIDADE DE ESTOQUE MAXIMO ATE A FIRMA DEMITIR UM TRABALHADOR
     const int TENTATIVAS_COMPRA_MAX = 100; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
     const int TENTATIVAS_CONTRATACAO_MAX = 5; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
     const double AJUSTE_FIXO_ESTOQUES = 0.05;
@@ -328,7 +327,7 @@ void Mercado::trabalhadores_consomem(){
     for (auto &trabalhador : trabalhadores_no_mercado) {
         num_tentativas = 0;
 
-        while ((trabalhador->get_salario() > 0) && (num_tentativas < TENTATIVAS_COMPRA_MAX)) { //PARAMETRO
+        while ((trabalhador->get_salario() > 0) && (num_tentativas < TENTATIVAS_COMPRA_MAX)) {
             // Seleciona uma firma aleatória
             auto &firma = firmas[distrib_firma(gen)];
 

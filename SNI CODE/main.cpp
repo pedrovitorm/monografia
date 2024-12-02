@@ -19,7 +19,7 @@
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 250;
+const int NUM_ITERACOES = 100;
 const int TEMPO_ATUALIZACAO = 50; //tempo de atualizacao da simulacao em milisegundos
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
@@ -167,7 +167,7 @@ int main() {//__________________________________________________________________
         // Trabalhadores consomem bens no mercado
         mercado.trabalhadores_consomem();
 
-        std::cout << "TRABALHADORES SE DEMITEM_____________________________________________________" << std::endl;
+        //std::cout << "TRABALHADORES SE DEMITEM_____________________________________________________" << std::endl;
         // Trabalhadores saem das firmas se seu consumo for 0
         //mercado.trabalhadores_se_demitem();
 

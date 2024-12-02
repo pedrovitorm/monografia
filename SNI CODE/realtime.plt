@@ -7,7 +7,7 @@ set autoscale
 set grid
 
 i = 0
-max_iter = 250  # Definir número máximo de iterações
+max_iter = 100  # Definir número máximo de iterações
 
 # Loop para atualizar o gráfico por um número definido de iterações
 while (i < max_iter) {
