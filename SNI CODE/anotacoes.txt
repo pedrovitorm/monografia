@@ -4,11 +4,43 @@ precos muito baixos
 comportamento explosivo
 
 possiveis solucoes:
-fazer com que firmas demitam todos os funcionarios depois de produzir e pagar salarios
-
 mudar comportamento da disposicao salarial e de precos do trabalhador
 (aumenta ou diminui disposicao de preco de acordo com tempo sem consumir e salario) ########
 (mudanca da disposicao diferente para trabalhador e firma (mais trabalhadores do que firmas jogam o salario para baixo))
-(aumenta ou diminui disposicao salarial de acordo com negociacoes no mercado)
 
+
+
+soluções em implementação:
 firma diminui ou aumenta disposicao salarial de acordo com os Estoques
+adicionar disposicao produto firma aleatorio!!!
+adicionar parametros mercado no config.txt
+ajuste de preco e salario de cada agente será individual (media e dp)
+
+Conclusões até agora:
+
+1º
+Variáveis iniciais dos agentes:
+Para ter um modelo estável é preciso iniciar as variáveis dos agentes com um valor próximo do equilíbrio,
+se não, ocorrem muitas distorções o que acaba levando muitos agentes a consumirem/não consumirem, devido a
+grandes distorções de preços ou salários, economia colapsa!
+
+2º
+Variáveis ligadas ao mercado:
+Estoque:
+Se a sensibilidade do preço do produto em relação a quantidade estocada for muito alta, por parte das firmas,
+os preços podem cair muito rapidamente, acarretando uma queda da rentabilidade da empresa que é obrigada a
+demitir os funcionários (capital não pode ser menor que 0 no modelo, nesse caso as firmas demitem os funcionarios).
+Por outro lado, se a sensibilidade do estoque for muito baixa, pode ocorrer acumulos de estoques muito grandes
+sem mudança nos preços, acarretando poucas vendas (acumulo de estoques) e consequente falência das empresas.
+
+Limite de Transações:
+As variáveis de limite de transações por iteração (quantidade máxima de tentativas de compra de produtos pelos
+trabalhadores e quantidade máxima de tentativas de contratação pelas empresas) caso sejam baixas, limitam as
+interações entre os agentes, o que pode causar uma diferença temporal muito grande até o equilíbrio seja alcançado,
+sendo assim, é possível obter um comportamento explosivo. Para limites muito altos, os agentes passam a interagir
+com mais frequência com outliers (principalmente no mercado de trabalho), fazendo com que as suas disposições mudem
+radicalmente para se adequar aos outliers que estão interagindo, também causando distorções e queda brusca nos salários.
+A queda dos salários por sua vez impossibilita o consumo.
+
+Sensibilidade de Transações:
+As sensibilidades de transação ()

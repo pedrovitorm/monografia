@@ -19,12 +19,12 @@ private:
     std::vector<std::shared_ptr<Firma>> firmas;           // Lista de Firmas
 
     //PARAMETROS DO MERCADO
-    const double AJUSTE_FIXO = 0.05; //PARAMETRO DE AJUSTE DE SALARIOS
-    const double AJUSTE_FIXO_TRABALHADOR = 0.07; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
-    const double AJUSTE_FIXO_PRECO = 0.1; //PARAMETRO AJUSTE PRECOS
-    const int TENTATIVAS_COMPRA_MAX = 100; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
-    const int TENTATIVAS_CONTRATACAO_MAX = 5; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
-    const double AJUSTE_FIXO_ESTOQUES = 0.05;
+    const double AJUSTE_FIXO = 0.07; //PARAMETRO DE AJUSTE DE SALARIOS
+    const double AJUSTE_FIXO_TRABALHADOR = 0.08; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
+    const double AJUSTE_FIXO_PRECO = 0.004; //PARAMETRO AJUSTE PRECOS
+    const int TENTATIVAS_COMPRA_MAX = 15; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
+    const int TENTATIVAS_CONTRATACAO_MAX = 40; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
+    const double AJUSTE_FIXO_ESTOQUES = 0.001;
 
     //DADOS DO MERCADO EM CADA ITERACAO
     int contratados;
@@ -118,23 +118,42 @@ public:
     }
     double get_riqueza_media(){
         double soma_riquezas = 0.0;
-        if (trabalhadores_empregados.empty()) return 0.0; // Evitar divisão por zero
 
         for (auto& trabalhador : trabalhadores_empregados) {
+            soma_riquezas += trabalhador->get_salario(); // Supondo que Trabalhador tenha getRiquezaInicial()
+        }
+        for (auto& trabalhador : trabalhadores_no_mercado) {
             soma_riquezas += trabalhador->get_salario(); // Supondo que Trabalhador tenha getRiquezaInicial()
         }
 
         if(soma_riquezas<0.0001) soma_riquezas = 0;
 
-        return soma_riquezas / trabalhadores_empregados.size();
+        return soma_riquezas / (trabalhadores_empregados.size()+trabalhadores_no_mercado.size());
     }
     int get_estoques(){
-            int soma_estoques = 0;
+        int soma_estoques = 0;
         for (auto& firma : firmas) {
             soma_estoques += firma->get_estoque();
         }
 
         return soma_estoques;
+    }
+    double get_disposicao_produto_trabalhador_medio(){
+        double soma_disposicao = 0.0;
+
+        for (auto& trabalhador : trabalhadores_empregados) {
+            soma_disposicao += trabalhador->get_disposicao_produto();
+        }
+        for (auto& trabalhador : trabalhadores_no_mercado) {
+            soma_disposicao += trabalhador->get_disposicao_produto();
+        }
+
+        if(soma_disposicao<0.0001) soma_disposicao = 0;
+
+        return soma_disposicao / (trabalhadores_empregados.size()+trabalhadores_no_mercado.size());
+    }
+    double get_percent_desempregados(){
+        return double(trabalhadores_no_mercado.size())/(trabalhadores_empregados.size() + trabalhadores_no_mercado.size());
     }
 };
 
@@ -429,12 +448,13 @@ void Mercado::imprime_mercado_csv(const std::string& nome_arquivo, int iteracao)
     // Escrever salário médio e preço médio
     arquivo << iteracao  << ',' << get_salario_medio() << ',' << get_preco_medio() << ',' << get_produzidos() << ',' <<
     get_consumidos() << ',' << get_contratados() << ',' << get_demitidos() << ',' << get_estoques() << ',' <<
-    get_capital_medio() << ',' << get_riqueza_media() <<'\n';
+    get_capital_medio() << ',' << get_riqueza_media() << ',' << get_disposicao_produto_trabalhador_medio() << ',' 
+    << get_percent_desempregados() <<'\n';
 
     arquivo.flush(); //forca a escrita no arquivo???
 
     arquivo.close();
-    std::cout << "Dados do mercado exportados para " << nome_arquivo << " com sucesso.\n";
+    //std::cout << "Dados do mercado exportados para " << nome_arquivo << " com sucesso.\n";
 }
 
 #endif // MERCADO_H

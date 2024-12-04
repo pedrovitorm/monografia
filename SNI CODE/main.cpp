@@ -4,9 +4,11 @@
 #include <random>
 #include <ctime> //tempo do pc para funcao random
 #include <fstream> //escrito no .csv
+#include <string>
 #include <sstream> //uso de strings
 #include <chrono> // Para usar o sleep
 #include <thread> // Para usar o sleep_for
+#include <unordered_map>
 #include "Firma.h"
 #include "Trabalhador.h"
 #include "Mercado.h"
@@ -19,27 +21,146 @@
 //#include "Banco.h"
 
 //PARAMETROS GERAIS
-const int NUM_ITERACOES = 100;
-const int TEMPO_ATUALIZACAO = 50; //tempo de atualizacao da simulacao em milisegundos
+bool IMPRIME_TERMINAL;
+bool IMPRIME_CSV;
+int NUM_ITERACOES;
+int TEMPO_ATUALIZACAO; //tempo de atualizacao da simulacao em microsegundos
+
+//PARAMETROS FIRMAS
+int NUM_FIRMAS;
+double MEDIA_CAPITAL; // Média para o capital
+double DESVIO_PADRAO_CAPITAL; // Desvio padrão para o capital
+double MEDIA_SALARIO_FIRMAS; // Média para o salário
+double DESVIO_PADRAO_SALARIO_FIRMAS; // Desvio padrão para o salário
+int MEDIA_ESTOQUE_INICIAL;
+int DESVIO_PADRAO_ESTOQUE_INICIAL;
+
+// Parâmetros para a criação dos trabalhadores
+int NUM_TRABALHADORES;
+double MEDIA_PRODUTIVIDADE; // Média para a produtividade
+double DESVIO_PADRAO_PRODUTIVIDADE; // Desvio padrão para a produtividade
+double MEDIA_SALARIO_TRABALHADOR; // Média para o salário
+double DESVIO_PADRAO_SALARIO_TRABALHADOR; // Desvio padrão para o salário
+double MEDIA_RIQUEZA_INICIAL;
+double DESVIO_PADRAO_RIQUEZA_INICIAL;
+double MEDIA_DISPOSICAO_PRODUTO;
+double DESVIO_PADRAO_PRODUTO;
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
+//Funcao para imprimir parametros no terminal
+void imprimirParametros() {
+    // Imprime os parâmetros gerais
+    std::cout << "// PARAMETROS GERAIS\n";
+    std::cout << "IMPRIME_TERMINAL: " << (IMPRIME_TERMINAL ? "true" : "false") << "\n";
+    std::cout << "IMPRIME_CSV: " << (IMPRIME_CSV ? "true" : "false") << "\n";
+    std::cout << "NUM_ITERACOES: " << NUM_ITERACOES << "\n";
+    std::cout << "TEMPO_ATUALIZACAO: " << TEMPO_ATUALIZACAO << " ms\n";
+
+    // Imprime os parâmetros das firmas
+    std::cout << "\n// PARAMETROS FIRMAS\n";
+    std::cout << "NUM_FIRMAS: " << NUM_FIRMAS << "\n";
+    std::cout << "MEDIA_CAPITAL: " << MEDIA_CAPITAL << "\n";
+    std::cout << "DESVIO_PADRAO_CAPITAL: " << DESVIO_PADRAO_CAPITAL << "\n";
+    std::cout << "MEDIA_SALARIO_FIRMAS: " << MEDIA_SALARIO_FIRMAS << "\n";
+    std::cout << "DESVIO_PADRAO_SALARIO_FIRMAS: " << DESVIO_PADRAO_SALARIO_FIRMAS << "\n";
+    std::cout << "MEDIA_ESTOQUE_INICIAL: " << MEDIA_ESTOQUE_INICIAL << "\n";
+    std::cout << "DESVIO_PADRAO_ESTOQUE_INICIAL: " << DESVIO_PADRAO_ESTOQUE_INICIAL << "\n";
+
+    // Imprime os parâmetros dos trabalhadores
+    std::cout << "\n// PARAMETROS TRABALHADORES\n";
+    std::cout << "NUM_TRABALHADORES: " << NUM_TRABALHADORES << "\n";
+    std::cout << "MEDIA_PRODUTIVIDADE: " << MEDIA_PRODUTIVIDADE << "\n";
+    std::cout << "DESVIO_PADRAO_PRODUTIVIDADE: " << DESVIO_PADRAO_PRODUTIVIDADE << "\n";
+    std::cout << "MEDIA_SALARIO_TRABALHADOR: " << MEDIA_SALARIO_TRABALHADOR << "\n";
+    std::cout << "DESVIO_PADRAO_SALARIO_TRABALHADOR: " << DESVIO_PADRAO_SALARIO_TRABALHADOR << "\n";
+    std::cout << "MEDIA_RIQUEZA_INICIAL: " << MEDIA_RIQUEZA_INICIAL << "\n";
+    std::cout << "DESVIO_PADRAO_RIQUEZA_INICIAL: " << DESVIO_PADRAO_RIQUEZA_INICIAL << "\n";
+    std::cout << "MEDIA_DISPOSICAO_PRODUTO: " << MEDIA_DISPOSICAO_PRODUTO << "\n";
+    std::cout << "DESVIO_PADRAO_PRODUTO: " << DESVIO_PADRAO_PRODUTO << "\n";
+}
+
+// Função para ler o arquivo de configuração e atribuir os valores às variáveis globais
+void lerConfiguracoes(const std::string& nomeArquivo) {
+    std::ifstream arquivo(nomeArquivo);
+    if (!arquivo.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de configurações: " << nomeArquivo << std::endl;
+        return;
+    }
+
+    std::unordered_map<std::string, std::string> configuracoes;
+    std::string linha;
+
+    // Lê linha por linha e armazena os pares chave-valor no mapa
+    while (std::getline(arquivo, linha)) {
+        std::istringstream iss(linha);
+        std::string chave, valor;
+
+        // Pula linhas vazias
+        if (linha.empty()) continue;
+
+        // Lê a chave e o valor
+        iss >> chave >> valor;
+
+        // Adiciona ao mapa
+        configuracoes[chave] = valor;
+    }
+
+    arquivo.close();
+
+    // Atribui os valores do mapa às variáveis globais
+    if (configuracoes.find("IMPRIME_TERMINAL") != configuracoes.end())
+        IMPRIME_TERMINAL = std::stoi(configuracoes["IMPRIME_TERMINAL"]);
+    if (configuracoes.find("IMPRIME_CSV") != configuracoes.end())
+        IMPRIME_CSV = std::stoi(configuracoes["IMPRIME_CSV"]);
+
+    if (configuracoes.find("NUM_ITERACOES") != configuracoes.end())
+        NUM_ITERACOES = std::stoi(configuracoes["NUM_ITERACOES"]);
+    if (configuracoes.find("TEMPO_ATUALIZACAO") != configuracoes.end())
+        TEMPO_ATUALIZACAO = std::stoi(configuracoes["TEMPO_ATUALIZACAO"]);
+
+    if (configuracoes.find("NUM_FIRMAS") != configuracoes.end())
+        NUM_FIRMAS = std::stoi(configuracoes["NUM_FIRMAS"]);
+    if (configuracoes.find("MEDIA_CAPITAL") != configuracoes.end())
+        MEDIA_CAPITAL = std::stod(configuracoes["MEDIA_CAPITAL"]);
+    if (configuracoes.find("DESVIO_PADRAO_CAPITAL") != configuracoes.end())
+        DESVIO_PADRAO_CAPITAL = std::stod(configuracoes["DESVIO_PADRAO_CAPITAL"]);
+    if (configuracoes.find("MEDIA_SALARIO_FIRMAS") != configuracoes.end())
+        MEDIA_SALARIO_FIRMAS = std::stod(configuracoes["MEDIA_SALARIO_FIRMAS"]);
+    if (configuracoes.find("DESVIO_PADRAO_SALARIO_FIRMAS") != configuracoes.end())
+        DESVIO_PADRAO_SALARIO_FIRMAS = std::stod(configuracoes["DESVIO_PADRAO_SALARIO_FIRMAS"]);
+    if (configuracoes.find("MEDIA_ESTOQUE_INICIAL") != configuracoes.end())
+        MEDIA_ESTOQUE_INICIAL = std::stoi(configuracoes["MEDIA_ESTOQUE_INICIAL"]);
+    if (configuracoes.find("DESVIO_PADRAO_ESTOQUE_INICIAL") != configuracoes.end())
+        DESVIO_PADRAO_ESTOQUE_INICIAL = std::stoi(configuracoes["DESVIO_PADRAO_ESTOQUE_INICIAL"]);
+
+    if (configuracoes.find("NUM_TRABALHADORES") != configuracoes.end())
+        NUM_TRABALHADORES = std::stoi(configuracoes["NUM_TRABALHADORES"]);
+    if (configuracoes.find("MEDIA_PRODUTIVIDADE") != configuracoes.end())
+        MEDIA_PRODUTIVIDADE = std::stod(configuracoes["MEDIA_PRODUTIVIDADE"]);
+    if (configuracoes.find("DESVIO_PADRAO_PRODUTIVIDADE") != configuracoes.end())
+        DESVIO_PADRAO_PRODUTIVIDADE = std::stod(configuracoes["DESVIO_PADRAO_PRODUTIVIDADE"]);
+    if (configuracoes.find("MEDIA_SALARIO_TRABALHADOR") != configuracoes.end())
+        MEDIA_SALARIO_TRABALHADOR = std::stod(configuracoes["MEDIA_SALARIO_TRABALHADOR"]);
+    if (configuracoes.find("DESVIO_PADRAO_SALARIO_TRABALHADOR") != configuracoes.end())
+        DESVIO_PADRAO_SALARIO_TRABALHADOR = std::stod(configuracoes["DESVIO_PADRAO_SALARIO_TRABALHADOR"]);
+    if (configuracoes.find("MEDIA_RIQUEZA_INICIAL") != configuracoes.end())
+        MEDIA_RIQUEZA_INICIAL = std::stod(configuracoes["MEDIA_RIQUEZA_INICIAL"]);
+    if (configuracoes.find("DESVIO_PADRAO_RIQUEZA_INICIAL") != configuracoes.end())
+        DESVIO_PADRAO_RIQUEZA_INICIAL = std::stod(configuracoes["DESVIO_PADRAO_RIQUEZA_INICIAL"]);
+    if (configuracoes.find("MEDIA_DISPOSICAO_PRODUTO") != configuracoes.end())
+        MEDIA_DISPOSICAO_PRODUTO = std::stod(configuracoes["MEDIA_DISPOSICAO_PRODUTO"]);
+    if (configuracoes.find("DESVIO_PADRAO_PRODUTO") != configuracoes.end())
+        DESVIO_PADRAO_PRODUTO = std::stod(configuracoes["DESVIO_PADRAO_PRODUTO"]);
+}
+
 // Função para criar as firmas com valores aleatórios com distribuição normal
 void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
-
-    //PARAMETROS FIRMAS
-    const int NUM_FIRMAS = 20;
-    const double MEDIA_CAPITAL = 4000; // Média para o capital
-    const double DESVIO_PADRAO_CAPITAL = 300.0; // Desvio padrão para o capital
-    const double MEDIA_SALARIO = 30.0; // Média para o salário
-    const double DESVIO_PADRAO_SALARIO = 5.0; // Desvio padrão para o salário
-    const int MEDIA_ESTOQUE_INICIAL = 10;
-    const int DESVIO_PADRAO_ESTOQUE_INICIAL = 3;
 
     // Inicializa o gerador de números aleatórios
     std::random_device rd;
     std::mt19937 gen(rd());
     std::normal_distribution<> capital_dist(MEDIA_CAPITAL, DESVIO_PADRAO_CAPITAL);
-    std::normal_distribution<> salario_dist(MEDIA_SALARIO, DESVIO_PADRAO_SALARIO);
+    std::normal_distribution<> salario_dist(MEDIA_SALARIO_FIRMAS, DESVIO_PADRAO_SALARIO_FIRMAS);
     std::normal_distribution<> estoque_dist(MEDIA_ESTOQUE_INICIAL, DESVIO_PADRAO_ESTOQUE_INICIAL);
 
     // Cria as firmas com valores aleatórios e as adiciona ao vetor
@@ -60,22 +181,12 @@ void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
 }
 
 void cria_trabalhadores(std::vector<std::shared_ptr<Trabalhador>>& trabalhadores) {
-    // Parâmetros para a criação dos trabalhadores
-    const int NUM_TRABALHADORES = 500;
-    const double MEDIA_PRODUTIVIDADE = 5.0; // Média para a produtividade
-    const double DESVIO_PADRAO_PRODUTIVIDADE = 2.0; // Desvio padrão para a produtividade
-    const double MEDIA_SALARIO = 30.0; // Média para o salário
-    const double DESVIO_PADRAO_SALARIO = 5.0; // Desvio padrão para o salário
-    const double MEDIA_RIQUEZA_INICIAL = 1000.0;
-    const double DESVIO_PADRAO_RIQUEZA_INICIAL = 300.0;
-    const double MEDIA_DISPOSICAO_PRODUTO = 40;
-    const double DESVIO_PADRAO_PRODUTO = 10;
 
     // Gerador de números aleatórios
     std::random_device rd;  // Obtém um gerador de números aleatórios
     std::mt19937 gen(rd()); // Semente com o gerador
     std::normal_distribution<> prod_dist(MEDIA_PRODUTIVIDADE, DESVIO_PADRAO_PRODUTIVIDADE); // Distribuição normal para produtividade
-    std::normal_distribution<> salario_dist(MEDIA_SALARIO, DESVIO_PADRAO_SALARIO); // Distribuição normal para salário
+    std::normal_distribution<> salario_dist(MEDIA_SALARIO_TRABALHADOR, DESVIO_PADRAO_SALARIO_TRABALHADOR); // Distribuição normal para salário
     std::normal_distribution<> riqueza_inicial_dist(MEDIA_RIQUEZA_INICIAL,DESVIO_PADRAO_RIQUEZA_INICIAL);
     std::normal_distribution<> disposicao_produto_dist(MEDIA_DISPOSICAO_PRODUTO,DESVIO_PADRAO_PRODUTO);
 
@@ -119,7 +230,7 @@ void adicionarCabecalho(const std::string& nome_arquivo) {
     }
 
     // Escrever o cabeçalho
-    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos,estoques,capital medio,riqueza media\n";
+    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos,estoques,capital medio,riqueza media,media_disp_prod_trab,desemprego_percent\n";
 
     // Escrever o conteúdo original de volta ao arquivo
     arquivoSaida << conteudo.str();
@@ -128,6 +239,12 @@ void adicionarCabecalho(const std::string& nome_arquivo) {
 }
 
 int main() {//________________________________________________________________________________________________
+    //Le parametros de config.txt
+    lerConfiguracoes("config.txt");
+
+    //imprime parametros no terminal
+    if(IMPRIME_TERMINAL) imprimirParametros();
+    
     // Cria vetores para armazenar Firmas e Trabalhadores
     std::vector<std::shared_ptr<Firma>> firmas;
     std::vector<std::shared_ptr<Trabalhador>> trabalhadores;
@@ -154,16 +271,16 @@ int main() {//__________________________________________________________________
     //ITERACOES______________________________________________________________________________________________
     // Simulação de algumas iterações
     for (int iteracao = 0; iteracao < NUM_ITERACOES; iteracao++) {
-        std::cout << "Iteracao " << iteracao + 1 << " ------------------------------------------" << std::endl;
+        if(IMPRIME_TERMINAL) std::cout << "Iteracao " << iteracao + 1 << " ------------------------------------------" << std::endl;
 
-        std::cout << "FIRMAS DEMITEM_____________________________________________________" << std::endl;
+        if(IMPRIME_TERMINAL) std::cout << "FIRMAS DEMITEM_____________________________________________________" << std::endl;
         mercado.firmas_demitem_todos();
 
-        std::cout << "FIRMAS CONTRATAM_____________________________________________________" << std::endl;
+        if(IMPRIME_TERMINAL) std::cout << "FIRMAS CONTRATAM_____________________________________________________" << std::endl;
         // Firmas contratam trabalhadores
         mercado.firmas_contratam();
 
-        std::cout << "TRABALHADORES CONSOMEM_____________________________________________________" << std::endl;
+        if(IMPRIME_TERMINAL) std::cout << "TRABALHADORES CONSOMEM_____________________________________________________" << std::endl;
         // Trabalhadores consomem bens no mercado
         mercado.trabalhadores_consomem();
 
@@ -171,34 +288,30 @@ int main() {//__________________________________________________________________
         // Trabalhadores saem das firmas se seu consumo for 0
         //mercado.trabalhadores_se_demitem();
 
-        std::cout << "FIRMAS PRODUZEM_____________________________________________________" << std::endl;
+        if(IMPRIME_TERMINAL) std::cout << "FIRMAS PRODUZEM_____________________________________________________" << std::endl;
         // Firmas produzem
         mercado.firmas_produzem();
 
-        std::cout << "FIRMAS PAGAM SALARIOS_____________________________________________________" << std::endl;
-       //Firmas pagam salario
+        if(IMPRIME_TERMINAL) std::cout << "FIRMAS PAGAM SALARIOS_____________________________________________________" << std::endl;
+        //Firmas pagam salario
         mercado.firmas_pagam_salario();
 
-        // Atualizar o mercado (por exemplo, ajustar os preços com base no estoque e demanda)
-        //mercado atualiza os parametros dos agentes com base em suas interacoes
-
-        //comportamentos esperados
-        //trabalhadores com maior produtividade recebem salarios mais altos
-        //empresas com trabalhadores produtivos vendem produtos mais baratos (homogeneos)
-
-        mercado.imprime_mercado_csv("mercado.csv",iteracao);
+        if(IMPRIME_CSV) mercado.imprime_mercado_csv("mercado.csv",iteracao);
         //mercado.imprime_mercado();
         mercado.reinicia_dados(); //nao tire essa funcao para nao acumular os dados
         
-        std::cout << "Fim da iteracao " << iteracao + 1 << " -----------------------------------" << "\n" << std::endl;
+        std::cout << "iteracao: " << iteracao + 1 << "\n";
     
         // Pausar a execução
-        std::this_thread::sleep_for(std::chrono::milliseconds(TEMPO_ATUALIZACAO));
+        std::this_thread::sleep_for(std::chrono::microseconds(TEMPO_ATUALIZACAO));
+
+        if(IMPRIME_TERMINAL) mercado.imprime_mercado();
+
+        if(IMPRIME_TERMINAL) std::cout << "FIM ITERACAO_____________________________________________________" << std::endl;
     }
 
-    //outFile << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos\n";
     // Adiciona o cabeçalho ao final de todas as iterações
-    adicionarCabecalho("mercado.csv");
+    if(IMPRIME_CSV) adicionarCabecalho("mercado.csv");
 
     return 0;
 }
