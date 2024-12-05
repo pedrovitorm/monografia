@@ -19,11 +19,11 @@ private:
     //bool financiamento;        // Se a firma está financiando suas operações
 
 public:
-    Firma(double capital_inicial, double _disposicao_salario, double _estoque_inicial) {
+    Firma(double capital_inicial, double _disposicao_salario, double _estoque_inicial, double _preco_produto) {
         capital = capital_inicial;
         estoque = _estoque_inicial;
         disposicao_salario = _disposicao_salario;
-        preco_produto = 40;
+        preco_produto = _preco_produto;
         quantidade_vendida = 0;
     }
 

@@ -19,12 +19,12 @@ private:
     std::vector<std::shared_ptr<Firma>> firmas;           // Lista de Firmas
 
     //PARAMETROS DO MERCADO
-    const double AJUSTE_FIXO = 0.07; //PARAMETRO DE AJUSTE DE SALARIOS
-    const double AJUSTE_FIXO_TRABALHADOR = 0.08; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
-    const double AJUSTE_FIXO_PRECO = 0.004; //PARAMETRO AJUSTE PRECOS
-    const int TENTATIVAS_COMPRA_MAX = 15; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
-    const int TENTATIVAS_CONTRATACAO_MAX = 40; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
-    const double AJUSTE_FIXO_ESTOQUES = 0.001;
+    double AJUSTE_FIXO; //PARAMETRO DE AJUSTE DE SALARIOS
+    double AJUSTE_FIXO_TRABALHADOR; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
+    double AJUSTE_FIXO_PRECO; //PARAMETRO AJUSTE PRECOS
+    int TENTATIVAS_COMPRA_MAX; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
+    int TENTATIVAS_CONTRATACAO_MAX; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
+    double AJUSTE_FIXO_ESTOQUES;
 
     //DADOS DO MERCADO EM CADA ITERACAO
     int contratados;
@@ -35,7 +35,18 @@ private:
 public:
 
     //FUNCOES GERAIS__________________________________________________________________________________
-    Mercado() {contratados = demitidos = produzidos = consumidos = 0;} // Inicializa com valores padrão
+    Mercado(double _AJUSTE_FIXO, double _AJUSTE_FIXO_TRABALHADOR, double _AJUSTE_FIXO_PRECO,
+    int _TENTATIVAS_COMPRA_MAX, int _TENTATIVAS_CONTRATACAO_MAX, double _AJUSTE_FIXO_ESTOQUES) { // Inicializa com valores padrão
+        contratados = demitidos = produzidos = consumidos = 0;
+
+        AJUSTE_FIXO = _AJUSTE_FIXO;
+        AJUSTE_FIXO_TRABALHADOR = _AJUSTE_FIXO_TRABALHADOR;
+        AJUSTE_FIXO_PRECO = _AJUSTE_FIXO_PRECO;
+        TENTATIVAS_COMPRA_MAX = _TENTATIVAS_COMPRA_MAX;
+        TENTATIVAS_CONTRATACAO_MAX = _TENTATIVAS_CONTRATACAO_MAX;
+        AJUSTE_FIXO_ESTOQUES = _AJUSTE_FIXO_ESTOQUES;
+    }
+
     void reinicia_dados(){contratados = demitidos = produzidos = consumidos = 0;}
 
     //FIRMAS_________________________________________________________________________________________

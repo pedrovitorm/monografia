@@ -3,21 +3,30 @@ salarios muito rigidos
 precos muito baixos
 comportamento explosivo
 
+
+
 possiveis solucoes:
 mudar comportamento da disposicao salarial e de precos do trabalhador
 (aumenta ou diminui disposicao de preco de acordo com tempo sem consumir e salario) ########
 (mudanca da disposicao diferente para trabalhador e firma (mais trabalhadores do que firmas jogam o salario para baixo))
+firma diminui ou aumenta disposicao salarial de acordo com os Estoques
 
 
 
 soluções em implementação:
-firma diminui ou aumenta disposicao salarial de acordo com os Estoques
-adicionar disposicao produto firma aleatorio!!!
-adicionar parametros mercado no config.txt
 ajuste de preco e salario de cada agente será individual (media e dp)
+firma precisa diferenciar os trabalhadores pela produtividade sem ter acesso direto a essa informacao:
+firma terá duas disposicoes salariais (baixa produtividade/alta produtividade), no momento da contratação
+será calculada uma probabilidade com base na produtividade real do trabalhador, exemplo:
+caso o trabalhador tenha produtividade 6, além disso, temos um parâmetro de PERCEPCAO_PRODUTIVIDADE, que possui
+determinada média, exemplo 5, e desvio padrao (caso o desvio padrao seja pequeno, essa variável aleatoria se
+comporta como uma constante, logo a empresa tem total acesso a produtividade do trabalhador, caso seja grande
+a empresa tem dificuldade em diferenciar os trabalhadores), sendo essa produtividade de categorizar o trabalhador
+computada por PERCEPCAO_PRODUTIVIDADE*produtividade individual.
+
+
 
 Conclusões até agora:
-
 1º
 Variáveis iniciais dos agentes:
 Para ter um modelo estável é preciso iniciar as variáveis dos agentes com um valor próximo do equilíbrio,
@@ -43,4 +52,13 @@ radicalmente para se adequar aos outliers que estão interagindo, também causan
 A queda dos salários por sua vez impossibilita o consumo.
 
 Sensibilidade de Transações:
-As sensibilidades de transação ()
+As sensibilidades de transação (ajuste de disposição a pagar de cada agente, sendo preços e salários) quando é muito
+baixa mantêm o nível de preços e salários muito rígido, causando portanto uma dificuldade do modelo em entrar em
+equilíbrio, nesse caso após determinado número de iterações pode ocorrer que ou as firmas fecham pois não tem capital
+ou os consumidores não possuem renda para consumir. No caso das sensibilidades forem muito altas, a variação dos salários
+e preços é grande o suficiente para causar distorções grandes o suficiente para o modelo também não entrar em equilíbrio.
+
+A sensibilidade dos preços especificamente, quando é alta o suficiente, pode causar um ciclo econômico mais longo,
+com muitos períodos de acúmulo de estoque. No caso de baixa sensibilidade, os ciclos econômicos são mais curtos.
+Isso pode ocorrer pois no caso de menor variação nas disposições a pagar/vender o produto, o ciclo se mantém próximo
+do equilíbrio e ocila com mais frequência ao redor deste.

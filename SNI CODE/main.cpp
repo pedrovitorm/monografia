@@ -34,6 +34,8 @@ double MEDIA_SALARIO_FIRMAS; // Média para o salário
 double DESVIO_PADRAO_SALARIO_FIRMAS; // Desvio padrão para o salário
 int MEDIA_ESTOQUE_INICIAL;
 int DESVIO_PADRAO_ESTOQUE_INICIAL;
+double MEDIA_PRECO_INICIAL;
+double DESVIO_PADRAO_PRECO_INICIAL;
 
 // Parâmetros para a criação dos trabalhadores
 int NUM_TRABALHADORES;
@@ -45,6 +47,14 @@ double MEDIA_RIQUEZA_INICIAL;
 double DESVIO_PADRAO_RIQUEZA_INICIAL;
 double MEDIA_DISPOSICAO_PRODUTO;
 double DESVIO_PADRAO_PRODUTO;
+
+//PARAMETROS DO MERCADO
+double AJUSTE_FIXO; //PARAMETRO DE AJUSTE DE SALARIOS
+double AJUSTE_FIXO_TRABALHADOR; //PARAMETRO DE AJUSTE DISPOSICAO SALARIO DO TRABALHADOR (INCREMENTO)
+double AJUSTE_FIXO_PRECO; //PARAMETRO AJUSTE PRECOS
+int TENTATIVAS_COMPRA_MAX; //QUANTIDADE DE TENTATIVAS DE COMPRA DE UM CONSUMIDOR POR ITERACAO
+int TENTATIVAS_CONTRATACAO_MAX; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
+double AJUSTE_FIXO_ESTOQUES; //SENSIBILIDADE DO AJUSTE DE PRECOS DA FIRMA EM RELACAO A QUANTIDADE ESTOCADA
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
 //Funcao para imprimir parametros no terminal
@@ -132,6 +142,10 @@ void lerConfiguracoes(const std::string& nomeArquivo) {
         MEDIA_ESTOQUE_INICIAL = std::stoi(configuracoes["MEDIA_ESTOQUE_INICIAL"]);
     if (configuracoes.find("DESVIO_PADRAO_ESTOQUE_INICIAL") != configuracoes.end())
         DESVIO_PADRAO_ESTOQUE_INICIAL = std::stoi(configuracoes["DESVIO_PADRAO_ESTOQUE_INICIAL"]);
+    if (configuracoes.find("MEDIA_PRECO_INICIAL") != configuracoes.end())
+        MEDIA_PRECO_INICIAL = std::stoi(configuracoes["MEDIA_PRECO_INICIAL"]);
+    if (configuracoes.find("DESVIO_PADRAO_PRECO_INICIAL") != configuracoes.end())
+        DESVIO_PADRAO_PRECO_INICIAL = std::stoi(configuracoes["DESVIO_PADRAO_PRECO_INICIAL"]);
 
     if (configuracoes.find("NUM_TRABALHADORES") != configuracoes.end())
         NUM_TRABALHADORES = std::stoi(configuracoes["NUM_TRABALHADORES"]);
@@ -151,6 +165,19 @@ void lerConfiguracoes(const std::string& nomeArquivo) {
         MEDIA_DISPOSICAO_PRODUTO = std::stod(configuracoes["MEDIA_DISPOSICAO_PRODUTO"]);
     if (configuracoes.find("DESVIO_PADRAO_PRODUTO") != configuracoes.end())
         DESVIO_PADRAO_PRODUTO = std::stod(configuracoes["DESVIO_PADRAO_PRODUTO"]);
+
+    if (configuracoes.find("AJUSTE_FIXO") != configuracoes.end())
+        AJUSTE_FIXO = std::stod(configuracoes["AJUSTE_FIXO"]);
+    if (configuracoes.find("AJUSTE_FIXO_TRABALHADOR") != configuracoes.end())
+        AJUSTE_FIXO_TRABALHADOR = std::stod(configuracoes["AJUSTE_FIXO_TRABALHADOR"]);
+    if (configuracoes.find("AJUSTE_FIXO_PRECO") != configuracoes.end())
+        AJUSTE_FIXO_PRECO = std::stod(configuracoes["AJUSTE_FIXO_PRECO"]);
+    if (configuracoes.find("TENTATIVAS_COMPRA_MAX") != configuracoes.end())
+        TENTATIVAS_COMPRA_MAX = std::stod(configuracoes["TENTATIVAS_COMPRA_MAX"]);
+    if (configuracoes.find("TENTATIVAS_CONTRATACAO_MAX") != configuracoes.end())
+        TENTATIVAS_CONTRATACAO_MAX = std::stod(configuracoes["TENTATIVAS_CONTRATACAO_MAX"]);
+    if (configuracoes.find("AJUSTE_FIXO_ESTOQUES") != configuracoes.end())
+        AJUSTE_FIXO_ESTOQUES = std::stod(configuracoes["AJUSTE_FIXO_ESTOQUES"]);
 }
 
 // Função para criar as firmas com valores aleatórios com distribuição normal
@@ -162,12 +189,15 @@ void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
     std::normal_distribution<> capital_dist(MEDIA_CAPITAL, DESVIO_PADRAO_CAPITAL);
     std::normal_distribution<> salario_dist(MEDIA_SALARIO_FIRMAS, DESVIO_PADRAO_SALARIO_FIRMAS);
     std::normal_distribution<> estoque_dist(MEDIA_ESTOQUE_INICIAL, DESVIO_PADRAO_ESTOQUE_INICIAL);
+    std::normal_distribution<> preco_dist(MEDIA_PRECO_INICIAL, DESVIO_PADRAO_PRECO_INICIAL);
+
 
     // Cria as firmas com valores aleatórios e as adiciona ao vetor
     for (int i = 0; i < NUM_FIRMAS; i++) {
         double capital_inicial = capital_dist(gen);
         double disposicao_salario = salario_dist(gen);
         int estoque_inicial = std::round(estoque_dist(gen));
+        double preco_inicial = preco_dist(gen);
 
 
         // Limita os valores para permanecerem dentro dos intervalos definidos
@@ -175,7 +205,7 @@ void criar_firmas(std::vector<std::shared_ptr<Firma>>& firmas) {
         if (capital_inicial < 0) capital_inicial = 0;
 
         // Cria uma nova firma com os valores sorteados
-        auto nova_firma = std::make_shared<Firma>(capital_inicial, disposicao_salario, estoque_inicial);
+        auto nova_firma = std::make_shared<Firma>(capital_inicial, disposicao_salario, estoque_inicial, preco_inicial);
         firmas.push_back(nova_firma);
     }
 }
@@ -253,7 +283,8 @@ int main() {//__________________________________________________________________
     criar_firmas(firmas);
     
     // Inicializa o mercado
-    Mercado mercado;
+    Mercado mercado(AJUSTE_FIXO, AJUSTE_FIXO_TRABALHADOR, AJUSTE_FIXO_PRECO, TENTATIVAS_COMPRA_MAX,
+    TENTATIVAS_CONTRATACAO_MAX, AJUSTE_FIXO_ESTOQUES);
 
     mercado.adicionarFirmas(firmas);
     mercado.adicionarTrabalhadores(trabalhadores);
