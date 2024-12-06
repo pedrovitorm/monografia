@@ -15,14 +15,17 @@ firma diminui ou aumenta disposicao salarial de acordo com os Estoques
 
 soluções em implementação:
 ajuste de preco e salario de cada agente será individual (media e dp)
+
 firma precisa diferenciar os trabalhadores pela produtividade sem ter acesso direto a essa informacao:
 firma terá duas disposicoes salariais (baixa produtividade/alta produtividade), no momento da contratação
 será calculada uma probabilidade com base na produtividade real do trabalhador, exemplo:
 caso o trabalhador tenha produtividade 6, além disso, temos um parâmetro de PERCEPCAO_PRODUTIVIDADE, que possui
 determinada média, exemplo 5, e desvio padrao (caso o desvio padrao seja pequeno, essa variável aleatoria se
 comporta como uma constante, logo a empresa tem total acesso a produtividade do trabalhador, caso seja grande
-a empresa tem dificuldade em diferenciar os trabalhadores), sendo essa produtividade de categorizar o trabalhador
-computada por PERCEPCAO_PRODUTIVIDADE*produtividade individual.
+a empresa tem dificuldade em diferenciar os trabalhadores), sendo essa probabilidade de categorizar o trabalhador
+computada por PERCEPCAO_PRODUTIVIDADE*produtividade_individual < alpha.
+
+adicionar curva de gini
 
 
 

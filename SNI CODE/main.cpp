@@ -260,7 +260,7 @@ void adicionarCabecalho(const std::string& nome_arquivo) {
     }
 
     // Escrever o cabeçalho
-    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos,estoques,capital medio,riqueza media,media_disp_prod_trab,desemprego_percent\n";
+    arquivoSaida << "iteracao,salario_medio,preco_medio,produzidos,consumidos,contratados,demitidos,estoques,capital medio,riqueza media,media_disp_prod_trab,desemprego_percent,base_monetaria,empresas_ativas,produtividade_total\n";
 
     // Escrever o conteúdo original de volta ao arquivo
     arquivoSaida << conteudo.str();

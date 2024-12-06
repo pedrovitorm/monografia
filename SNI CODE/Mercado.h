@@ -166,6 +166,38 @@ public:
     double get_percent_desempregados(){
         return double(trabalhadores_no_mercado.size())/(trabalhadores_empregados.size() + trabalhadores_no_mercado.size());
     }
+    int get_empresas_ativas(){
+        int ativas = 0;
+        for(auto &firma : firmas){
+            if(firma->get_capital()>0){
+                ativas++;
+            }
+        }
+        return ativas;
+    }
+    double get_base_monetaria(){
+        double quantidade = 0;
+        for(auto &firma : firmas){
+            quantidade += firma->get_capital();
+        }
+        for(auto &trabalhador : trabalhadores_empregados){
+            quantidade += trabalhador->get_salario();
+        }
+        for(auto &trabalhador : trabalhadores_no_mercado){
+            quantidade += trabalhador->get_salario();
+        }
+        return quantidade;
+    }
+    int get_produtividade_total(){
+        int produtividade = 0;
+        for(auto &trabalhador : trabalhadores_empregados){
+            produtividade += trabalhador->get_produtividade();
+        }
+        for(auto &trabalhador : trabalhadores_no_mercado){
+            produtividade += trabalhador->get_produtividade();
+        }
+        return produtividade;
+    }
 };
 
 //IMPLEMENTACOES________________________________________________________________________________________________
@@ -460,7 +492,8 @@ void Mercado::imprime_mercado_csv(const std::string& nome_arquivo, int iteracao)
     arquivo << iteracao  << ',' << get_salario_medio() << ',' << get_preco_medio() << ',' << get_produzidos() << ',' <<
     get_consumidos() << ',' << get_contratados() << ',' << get_demitidos() << ',' << get_estoques() << ',' <<
     get_capital_medio() << ',' << get_riqueza_media() << ',' << get_disposicao_produto_trabalhador_medio() << ',' 
-    << get_percent_desempregados() <<'\n';
+    << get_percent_desempregados() << ',' << get_base_monetaria() << ',' << get_empresas_ativas() <<
+    ',' << get_produtividade_total() << '\n';
 
     arquivo.flush(); //forca a escrita no arquivo???
 

@@ -41,7 +41,7 @@ public:
     void set_produtos_consumidos(int valor){produtos_consumidos = valor;}
 
     // Decide se vai consumir bens com base na utilidade e preços
-    void consumir(int preco_bem);
+    void consumir(double preco_bem);
     void reinicia_consumidos() {produtos_consumidos = 0;}
 
     //Recebe salario
@@ -53,7 +53,7 @@ public:
 };
 
 //IMPLEMENTACOES DAS FUNCOES___________________________________________________________________________________
-void Consumidor::consumir(int preco_bem) {
+void Consumidor::consumir(double preco_bem) {
     if(preco_bem > salario){ //se preco for maior que o salario restante ele nao compra
         poupar();
     }
