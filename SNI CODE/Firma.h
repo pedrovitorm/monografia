@@ -10,7 +10,9 @@ private:
     double capital;               // Capital da firma
     int estoque;               // Quantidade de bens estocados
     std::vector<std::shared_ptr<Trabalhador>> trabalhadores; // Trabalhadores contratados
+    std::vector<std::shared_ptr<Trabalhador>> trabalhadores_produtivo; //Trabalhadores produtivos
     double disposicao_salario;
+    double disposicao_salario_produtivo;
     double preco_produto;
     int quantidade_vendida;
     //int complexidade_produto;  // Complexidade do bem produzido
@@ -23,6 +25,7 @@ public:
         capital = capital_inicial;
         estoque = _estoque_inicial;
         disposicao_salario = _disposicao_salario;
+        disposicao_salario_produtivo = _disposicao_salario;
         preco_produto = _preco_produto;
         quantidade_vendida = 0;
     }
@@ -54,13 +57,17 @@ public:
     void contratar(std::shared_ptr<Trabalhador> trabalhador) {
         trabalhadores.push_back(trabalhador);
     }
+    void contratar_produtivo(std::shared_ptr<Trabalhador> trabalhador) {
+        trabalhadores_produtivo.push_back(trabalhador);
+    }
 
     void demite(std::shared_ptr<Trabalhador> trabalhador);
     std::shared_ptr<Trabalhador> querem_ser_demitidos();
 
     double get_disposicao_salario() {return disposicao_salario;}
+    double get_disposicao_salario_produtivo() {return disposicao_salario_produtivo;}
     int get_quandidade_vendida(){return quantidade_vendida;}
-    int get_quantidade_trabalhadores(){return trabalhadores.size();}
+    int get_quantidade_trabalhadores(){return (trabalhadores.size()+trabalhadores_produtivo.size());}
     void set_preco_produto(double valor){
         if(valor<0.0001){
             preco_produto = 0;
@@ -72,6 +79,8 @@ public:
     void set_quantidade_vendida(int quantidade){quantidade_vendida = quantidade;}
     void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
     void set_disposicao_salario_decremento(double novo_percent){disposicao_salario -= disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
+    void set_disposicao_salario_incremento_produtivo(double novo_percent){disposicao_salario_produtivo += disposicao_salario_produtivo*novo_percent; if(disposicao_salario_produtivo<0) disposicao_salario_produtivo = 0;}
+    void set_disposicao_salario_decremento_produtivo(double novo_percent){disposicao_salario_produtivo -= disposicao_salario_produtivo*novo_percent; if(disposicao_salario_produtivo<0) disposicao_salario_produtivo = 0;}
     int get_estoque(){return estoque;}
     double get_capital(){return capital;}
 
@@ -88,36 +97,70 @@ void Firma::pagar_salarios(){
         capital -= disposicao_salario;
         //trabalhador->imprime();
     }
+
+    for(auto &trabalhador : trabalhadores_produtivo){
+        //trabalhador->imprime();
+        trabalhador->pagar_salario(disposicao_salario_produtivo);
+        capital -= disposicao_salario_produtivo;
+        //trabalhador->imprime();
+    }
 }
 
 std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
     if (trabalhadores.empty()) {
-        //std::cout << "Nenhum trabalhador para demitir." << std::endl;
-        return NULL;
-    }
-
-    // Inicializa o índice do trabalhador menos produtivo
-    size_t indice_menos_produtivo = 0;
-    double produtividade_minima = trabalhadores[0]->get_produtividade();
-
-    // Itera sobre os trabalhadores para encontrar o menos produtivo
-    for (size_t i = 1; i < trabalhadores.size(); ++i) {
-        double produtividade_atual = trabalhadores[i]->get_produtividade();
-        if (produtividade_atual < produtividade_minima) {
-            indice_menos_produtivo = i; // Atualiza o índice do trabalhador menos produtivo
-            produtividade_minima = produtividade_atual;
+        if(trabalhadores_produtivo.empty()){
+            //std::cout << "Nenhum trabalhador para demitir." << std::endl;
+            return NULL;
         }
+
+        //DEMITE UM PRODUTIVO
+        // Inicializa o índice do trabalhador menos produtivo
+        size_t indice_menos_produtivo = 0;
+        double produtividade_minima = trabalhadores_produtivo[0]->get_produtividade();
+
+        // Itera sobre os trabalhadores para encontrar o menos produtivo
+        for (size_t i = 1; i < trabalhadores_produtivo.size(); ++i) {
+            double produtividade_atual = trabalhadores_produtivo[i]->get_produtividade();
+            if (produtividade_atual < produtividade_minima) {
+                indice_menos_produtivo = i; // Atualiza o índice do trabalhador menos produtivo
+                produtividade_minima = produtividade_atual;
+            }
+        }
+
+        // Armazena o trabalhador a ser demitido
+        auto trabalhador_demidido = trabalhadores_produtivo[indice_menos_produtivo];
+
+        // Demite o trabalhador menos produtivo
+        //std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
+        trabalhadores_produtivo.erase(trabalhadores_produtivo.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
+
+        // Retorna o trabalhador demitido
+        return trabalhador_demidido;
     }
+    else{
+        // Inicializa o índice do trabalhador menos produtivo
+        size_t indice_menos_produtivo = 0;
+        double produtividade_minima = trabalhadores[0]->get_produtividade();
 
-    // Armazena o trabalhador a ser demitido
-    auto trabalhador_demidido = trabalhadores[indice_menos_produtivo];
+        // Itera sobre os trabalhadores para encontrar o menos produtivo
+        for (size_t i = 1; i < trabalhadores.size(); ++i) {
+            double produtividade_atual = trabalhadores[i]->get_produtividade();
+            if (produtividade_atual < produtividade_minima) {
+                indice_menos_produtivo = i; // Atualiza o índice do trabalhador menos produtivo
+                produtividade_minima = produtividade_atual;
+            }
+        }
 
-    // Demite o trabalhador menos produtivo
-    //std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
-    trabalhadores.erase(trabalhadores.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
+        // Armazena o trabalhador a ser demitido
+        auto trabalhador_demidido = trabalhadores[indice_menos_produtivo];
 
-    // Retorna o trabalhador demitido
-    return trabalhador_demidido;
+        // Demite o trabalhador menos produtivo
+        //std::cout << "Demissão do trabalhador com produtividade " << produtividade_minima << std::endl;
+        trabalhadores.erase(trabalhadores.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
+
+        // Retorna o trabalhador demitido
+        return trabalhador_demidido;
+    }
 }
 
 void Firma::demite(std::shared_ptr<Trabalhador> trabalhador){
@@ -146,6 +189,11 @@ std::shared_ptr<Trabalhador> Firma::querem_ser_demitidos(){
 int Firma::produzir(){
     int produtividade_total = 0;
     for(auto &trabalhador : trabalhadores){
+        produtividade_total+= trabalhador->get_produtividade();
+        trabalhador->adiciona_ano_empresa();
+    }
+
+    for(auto &trabalhador : trabalhadores_produtivo){
         produtividade_total+= trabalhador->get_produtividade();
         trabalhador->adiciona_ano_empresa();
     }

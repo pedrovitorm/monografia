@@ -25,6 +25,9 @@ comporta como uma constante, logo a empresa tem total acesso a produtividade do 
 a empresa tem dificuldade em diferenciar os trabalhadores), sendo essa probabilidade de categorizar o trabalhador
 computada por PERCEPCAO_PRODUTIVIDADE*produtividade_individual < alpha.
 
+salario dos produtivos e dos nao produtivos começam iguais
+suposição que a firma sabe a média de produtividade do mercado, mas não sabe a produtividade individual
+
 adicionar curva de gini
 
 

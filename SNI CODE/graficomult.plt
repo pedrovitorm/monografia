@@ -9,7 +9,7 @@ set title "Graficos em Tempo Real"
 
 # Ajuste do tamanho da janela
 set terminal wxt size 1200, 800  # Largura e altura em pixels
-set multiplot layout 4, 2 title "Análise das Variáveis em Tempo Real"  # 3 linhas, 2 colunas
+set multiplot layout 5, 2 title "Análise das Variáveis em Tempo Real"  # 3 linhas, 2 colunas
 
 # Gráfico 1: Variáveis principais - Salário e Preço Médio
 set title "Salario e Preco medio"
@@ -45,5 +45,13 @@ plot 'mercado.csv' using 1:14 with lines title "ativas" lt rgb "green"
 # Gráfico 8: Variável Customizada (Exemplo)
 set title "Base monetaria"
 plot 'mercado.csv' using 1:13 with lines title "Quantidade" lt rgb "blue"
+
+# Gráfico 9: Variável Customizada (Exemplo)
+set title "Salario improdutivo"
+plot 'mercado.csv' using 1:16 with lines title "Salario" lt rgb "red"
+
+# Gráfico 10: Variável Customizada (Exemplo)
+set title "Salario produtivo"
+plot 'mercado.csv' using 1:17 with lines title "Salario" lt rgb "blue"
 
 unset multiplot
