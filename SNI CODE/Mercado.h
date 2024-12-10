@@ -11,6 +11,20 @@
 #include "Firma.h"
 #include "Trabalhador.h"
 
+double calculaDesvioPadraoProduto(double mediaX, double mediaY, double desvioPadraoX, double desvioPadraoY) {
+    // Variância é o quadrado do desvio padrão
+    double varianciaX = desvioPadraoX * desvioPadraoX;
+    double varianciaY = desvioPadraoY * desvioPadraoY;
+
+    // Variância do produto
+    double varianciaProduto = (mediaX * mediaX * varianciaY) + 
+                              (mediaY * mediaY * varianciaX) + 
+                              (varianciaX * varianciaY);
+
+    // Desvio padrão é a raiz quadrada da variância
+    return std::sqrt(varianciaProduto);
+}
+
 class Mercado {
 private:
     //VETORES DE TRABALHADORES EMPREGADOS/DESEMPREGADOS E FIRMAS
@@ -26,9 +40,10 @@ private:
     int TENTATIVAS_CONTRATACAO_MAX; //QUANTIDADE DE TENTATIVAS DE CONTRATACAO DA EMPREDA NO MERCADO POR ITERACAO
     double AJUSTE_FIXO_ESTOQUES;
 
-    double MEDIA_PERCEPCAO = 5;
-    double DESVIO_PADRAO_PERCEPCAO = 100;
-    double VALOR_PERCEPCAO = 25;
+    //PARAMETROS DE PERCEPCAO DA FIRMA
+    double MEDIA_PERCEPCAO = 50;
+    double DESVIO_PADRAO_PERCEPCAO = 1;
+    double VALOR_PERCEPCAO = 2500;
 
     //DADOS DO MERCADO EM CADA ITERACAO
     int contratados;
@@ -110,7 +125,7 @@ public:
     double get_salario_produtivo(){
         double soma_salarios = 0.0;
         for(auto &firma : firmas){
-            soma_salarios += firma->get_disposicao_salario_produtivo();
+            soma_salarios += firma->get_salario_produtivo_medio();
         }
 
         if(soma_salarios<0.0001) soma_salarios = 0;
@@ -120,7 +135,7 @@ public:
     double get_salario_improdutivo(){
         double soma_salarios = 0.0;
         for(auto &firma : firmas){
-            soma_salarios += firma->get_disposicao_salario();
+            soma_salarios += firma->get_salario_improdutivo_medio();
         }
 
         if(soma_salarios<0.0001) soma_salarios = 0;
@@ -260,16 +275,26 @@ void Mercado::firmas_contratam() {
 
             //std::cout << "produtividade" << trabalhador->get_produtividade() << " " << produtividade << std::endl;
 
+            double ajuste_salario_produtivo = ((produtividade-VALOR_PERCEPCAO)/calculaDesvioPadraoProduto(50,MEDIA_PERCEPCAO,10,DESVIO_PADRAO_PERCEPCAO)); //O QUANTO O TRABALHADOR É ACIMA DA MEDIA
+            
+            if(ajuste_salario_produtivo>=0){ajuste_salario_produtivo = (ajuste_salario_produtivo+4)/4;}
+            else{ajuste_salario_produtivo = (4+ajuste_salario_produtivo)/4;}
+
+            //std::cout << trabalhador->get_produtividade() << " " << ajuste_salario_produtivo << std::endl;
+
             if(produtividade >= VALOR_PERCEPCAO){
                 //PRODUTIVO
+                //POSSUEM AJUSTE NO SALARIO COM BASE NA PERCEPCAO DE PRODUTIVIDADE
 
                 // Comparar a disposição do trabalhador com o salário oferecido pela firma
-                if (trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario_produtivo() && firma->get_capital()>0) {
+                if (trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario_produtivo()*ajuste_salario_produtivo && firma->get_capital()>0) {
                     // O trabalhador aceita o salário e é contratado
                     firma->contratar_produtivo(trabalhador);
                     trabalhadores_empregados.push_back(trabalhador);
                     contratados++;
                     //std::cout << "Trabalhador contratado pela firma " << std::endl;
+
+                    trabalhador->set_salario_efetivo(firma->get_disposicao_salario_produtivo()*ajuste_salario_produtivo);
 
                     // Ajustar a disposição do trabalhador (aumenta após ser contratado)
                     trabalhador->set_disposicao_salario_incremento(AJUSTE_FIXO_TRABALHADOR);
@@ -281,10 +306,10 @@ void Mercado::firmas_contratam() {
                     // Remover o trabalhador da lista de disponíveis
                     trabalhadores_no_mercado.erase(trabalhadores_no_mercado.begin() + indiceTrabalhador);
 
-                } else if(trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario_produtivo() && firma->get_capital()<=0){
+                } else if(trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario_produtivo()*ajuste_salario_produtivo && firma->get_capital()<=0){
                     // Ajustar a disposição da firma (diminui após nao ter dinheiro para contratar)
                     firma->set_disposicao_salario_decremento_produtivo(AJUSTE_FIXO);
-                } else if(trabalhador->get_disposicao_salario() > firma->get_disposicao_salario_produtivo()){
+                } else if(trabalhador->get_disposicao_salario() > firma->get_disposicao_salario_produtivo()*ajuste_salario_produtivo){
                     // Trabalhador rejeita o salário
                     //std::cout << "Trabalhador recusou a oferta da firma " << std::endl;
                     //std::cout << "produtivo rejeita trabalho" << std::endl;
@@ -300,6 +325,7 @@ void Mercado::firmas_contratam() {
             }
             else{
                 //NAO PRODUTIVO
+                //NAO POSSUEM AJUSTE NO SALARIO, FIRMA APENAS OFERECE O SALARIO BASE
 
                 // Comparar a disposição do trabalhador com o salário oferecido pela firma
                 if (trabalhador->get_disposicao_salario() <= firma->get_disposicao_salario() && firma->get_capital()>0) {
@@ -308,6 +334,8 @@ void Mercado::firmas_contratam() {
                     trabalhadores_empregados.push_back(trabalhador);
                     contratados++;
                     //std::cout << "Trabalhador contratado pela firma " << std::endl;
+
+                    trabalhador->set_salario_efetivo(firma->get_disposicao_salario());
 
                     // Ajustar a disposição do trabalhador (aumenta após ser contratado)
                     trabalhador->set_disposicao_salario_incremento(AJUSTE_FIXO_TRABALHADOR);

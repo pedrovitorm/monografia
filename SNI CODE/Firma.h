@@ -84,6 +84,25 @@ public:
     int get_estoque(){return estoque;}
     double get_capital(){return capital;}
 
+    double get_salario_produtivo_medio(){
+        double soma = 0;
+        if(trabalhadores_produtivo.empty()) return 0;
+
+        for(auto &trabalhador : trabalhadores_produtivo){
+            soma+=trabalhador->get_salario_efetivo();
+        }
+        return soma/trabalhadores_produtivo.size();
+    }
+    double get_salario_improdutivo_medio(){
+        double soma = 0;
+        if(trabalhadores.empty()) return 0;
+
+        for(auto &trabalhador : trabalhadores){
+            soma+=trabalhador->get_salario_efetivo();
+        }
+        return soma/trabalhadores.size();
+    }
+
     void imprime();
 
     std::shared_ptr<Trabalhador> demite_menos_produtivo();
@@ -93,15 +112,15 @@ public:
 void Firma::pagar_salarios(){
     for(auto &trabalhador : trabalhadores){
         //trabalhador->imprime();
-        trabalhador->pagar_salario(disposicao_salario);
-        capital -= disposicao_salario;
+        trabalhador->pagar_salario(trabalhador->get_salario_efetivo());
+        capital -= trabalhador->get_salario_efetivo();
         //trabalhador->imprime();
     }
 
     for(auto &trabalhador : trabalhadores_produtivo){
         //trabalhador->imprime();
-        trabalhador->pagar_salario(disposicao_salario_produtivo);
-        capital -= disposicao_salario_produtivo;
+        trabalhador->pagar_salario(trabalhador->get_salario_efetivo());
+        capital -= trabalhador->get_salario_efetivo();
         //trabalhador->imprime();
     }
 }
@@ -135,6 +154,7 @@ std::shared_ptr<Trabalhador> Firma::demite_menos_produtivo() {
         trabalhadores_produtivo.erase(trabalhadores_produtivo.begin() + indice_menos_produtivo); // Remove o trabalhador da lista
 
         // Retorna o trabalhador demitido
+        trabalhador_demidido->set_salario_efetivo(0);
         return trabalhador_demidido;
     }
     else{

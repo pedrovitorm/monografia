@@ -8,6 +8,7 @@ private:
     double salario;        // Salário do consumidor
     double poupanca;       // Poupança acumulada
     double disposicao_salario;
+    double salario_efetivo;
     double disposicao_produto;
     int produtos_consumidos;
     //int utilidade;      // Utilidade obtida do consumo
@@ -15,7 +16,7 @@ private:
 
 public:
     Consumidor(double _salario, double _riqueza_inicial, double _disposicao_produto): 
-    disposicao_salario(_salario) {produtos_consumidos = 0; poupanca = 0;salario=0;salario = _riqueza_inicial;disposicao_produto = _disposicao_produto;};
+    disposicao_salario(_salario) {produtos_consumidos = 0; poupanca = 0;salario=0;salario = _riqueza_inicial;disposicao_produto = _disposicao_produto;salario_efetivo = 0;};
 
     void set_salario(double valor){
         if(valor<0.0001){
@@ -26,6 +27,9 @@ public:
     }
     void set_disposicao_salario_incremento(double novo_percent){disposicao_salario += disposicao_salario*novo_percent;}
     void set_disposicao_salario_decremento(double novo_percent){disposicao_salario -= disposicao_salario*novo_percent; if(disposicao_salario<0) disposicao_salario = 0;}
+    void set_disposicao_salario_absoluto(double novo_percent){disposicao_salario = novo_percent;}
+    void set_salario_efetivo(double novo_salario){salario_efetivo = novo_salario;}
+    double get_salario_efetivo(){return salario_efetivo;}
     double get_salario(){return salario;}
     double get_disposicao_salario(){return disposicao_salario;}
     double get_poupanca(){return poupanca;}
