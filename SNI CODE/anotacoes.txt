@@ -4,11 +4,9 @@ mudar comportamento da disposicao salarial e de precos do trabalhador
 (mudanca da disposicao diferente para trabalhador e firma (mais trabalhadores do que firmas jogam o salario para baixo))
 firma diminui ou aumenta disposicao salarial de acordo com os Estoques
 
-
 soluções em implementação:
 ajuste de preco e salario de cada agente será individual (media e dp)
 adicionar curva de gini
-
 
 Conclusões até agora:
 1º

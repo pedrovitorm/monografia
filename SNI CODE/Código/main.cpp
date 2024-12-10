@@ -12,6 +12,7 @@
 #include <chrono> // Para usar o sleep
 #include <thread> // Para usar o sleep_for
 #include <unordered_map>
+#include <filesystem>
 #include "Firma.h"
 #include "Trabalhador.h"
 #include "Mercado.h"
@@ -58,6 +59,34 @@ double DESVIO_PADRAO_PERCEPCAO; //valor do DP da variavel aleatoria com dist nor
 double VALOR_PERCEPCAO; //valor usado para diferenciar agentes produtivos dos improdutivos (recomendo ser MEDIA_PRODUTIVIDADE*MEDIA_PERCEPCAO)
 
 //FUNCOES AUXILIARES___________________________________________________________________________________________
+//Funcao para mover arquivos .csv para a pasta Dados
+void moverArquivos(const std::filesystem::path& arquivoAtual, const std::filesystem::path& pastaDestino) {
+    try {
+        // Verificar se o arquivo original existe
+        if (!std::filesystem::exists(arquivoAtual)) {
+            std::cerr << "O arquivo '" << arquivoAtual << "' não foi encontrado!" << std::endl;
+            return;
+        }
+        // Criar o diretório de destino, caso não exista
+        if (!std::filesystem::exists(pastaDestino)) {
+            std::filesystem::create_directories(pastaDestino);
+        }
+        // Caminho final no destino
+        std::filesystem::path arquivoDestino = pastaDestino / arquivoAtual.filename();
+        // Mover o arquivo para o diretório de destino
+        // Verificar se o arquivo já existe no destino
+        if (std::filesystem::exists(arquivoDestino)) {
+            std::cerr << "O arquivo '" << arquivoDestino << "' ja existe no destino. Sobrescrevendo..." << std::endl;
+            std::filesystem::remove(arquivoDestino); // Remove o arquivo existente antes de copiar
+        }
+        std::filesystem::copy(arquivoAtual, arquivoDestino);
+        std::filesystem::remove(arquivoAtual);
+        std::cout << "Arquivo movido para: " << arquivoDestino << std::endl;
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Erro ao manipular arquivos: " << e.what() << std::endl;
+    }
+}
+
 // Função para ler o arquivo de configuração e atribuir os valores às variáveis globais
 void lerConfiguracoes(const std::string& nomeArquivo) {
     std::ifstream arquivo(nomeArquivo);
@@ -286,5 +315,10 @@ int main() {//__________________________________________________________________
     }
     // Adiciona o cabeçalho ao final de todas as iterações
     if(IMPRIME_CSV) adicionarCabecalho("mercado.csv");
+    outFile.close();
+    //Move arquivos .csv para Dados
+    std::filesystem::path arquivoAtual = "mercado.csv"; // Arquivo na mesma pasta da main.cpp
+    std::filesystem::path pastaDestino = "..\\Dados";
+    moverArquivos(arquivoAtual, pastaDestino);
     return 0;
 }
