@@ -1,35 +1,13 @@
-problemas: 
-salarios muito rigidos
-precos muito baixos
-comportamento explosivo
-
-
-
-possiveis solucoes:
+possiveis melhorias:
 mudar comportamento da disposicao salarial e de precos do trabalhador
 (aumenta ou diminui disposicao de preco de acordo com tempo sem consumir e salario) ########
 (mudanca da disposicao diferente para trabalhador e firma (mais trabalhadores do que firmas jogam o salario para baixo))
 firma diminui ou aumenta disposicao salarial de acordo com os Estoques
 
 
-
 soluções em implementação:
 ajuste de preco e salario de cada agente será individual (media e dp)
-
-firma precisa diferenciar os trabalhadores pela produtividade sem ter acesso direto a essa informacao:
-firma terá duas disposicoes salariais (baixa produtividade/alta produtividade), no momento da contratação
-será calculada uma probabilidade com base na produtividade real do trabalhador, exemplo:
-caso o trabalhador tenha produtividade 6, além disso, temos um parâmetro de PERCEPCAO_PRODUTIVIDADE, que possui
-determinada média, exemplo 5, e desvio padrao (caso o desvio padrao seja pequeno, essa variável aleatoria se
-comporta como uma constante, logo a empresa tem total acesso a produtividade do trabalhador, caso seja grande
-a empresa tem dificuldade em diferenciar os trabalhadores), sendo essa probabilidade de categorizar o trabalhador
-computada por PERCEPCAO_PRODUTIVIDADE*produtividade_individual < alpha.
-
-salario dos produtivos e dos nao produtivos começam iguais
-suposição que a firma sabe a média de produtividade do mercado, mas não sabe a produtividade individual
-
 adicionar curva de gini
-
 
 
 Conclusões até agora:
@@ -68,3 +46,10 @@ A sensibilidade dos preços especificamente, quando é alta o suficiente, pode c
 com muitos períodos de acúmulo de estoque. No caso de baixa sensibilidade, os ciclos econômicos são mais curtos.
 Isso pode ocorrer pois no caso de menor variação nas disposições a pagar/vender o produto, o ciclo se mantém próximo
 do equilíbrio e ocila com mais frequência ao redor deste.
+
+3º
+Percepcao da firma:
+Mudar o desvio padrao da variavel ligada a percepcao da firma em relacao a produtividade individual, muda também sua
+capacidade de diferenciar os agentes. Quando o DP é alto a firma não consegue diferenciar os agentes, logo os salarios
+dos agentes de alta produtividade e baixa produtividade são parecidos, porém, quando o DP é baixo, a firma consegue
+diferenciar os agentes e os diferenciais entre os salários aumenta.
