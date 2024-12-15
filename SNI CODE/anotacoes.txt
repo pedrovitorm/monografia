@@ -8,6 +8,17 @@ soluções em implementação:
 ajuste de preco e salario de cada agente será individual (media e dp)
 adicionar curva de gini
 
+Possibilidade de implementação do governo:
+Pode fazer política fiscal, comprar produtos e contratar trabalhadores, cobrar impostos.
+impossibilidade de realizar política monetária com compra e venda de títulos.
+Possibilidade de criar moeda e comprar bens e contratar. (senhoriagem)
+Possibilidade de implementar salário mínimo/máximo.
+Possibilidade de implementar preço máximo/mínimo.
+Possibilidade de implementar distribuição de renda.
+Queimar estoques, contratar desempregados.
+Política de aumento da produtividade.
+
+
 Conclusões até agora:
 1º
 Variáveis iniciais dos agentes:

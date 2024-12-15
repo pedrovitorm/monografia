@@ -11,10 +11,9 @@ set title "Graficos em Tempo Real"
 set terminal wxt size 1200, 800  # Largura e altura em pixels
 set multiplot layout 5, 2 title "Análise das Variáveis em Tempo Real"  # 3 linhas, 2 colunas
 
-# Gráfico 1: Variáveis principais - Salário e Preço Médio
-set title "Salario e Preco medio"
-plot '../Dados/mercado.csv' using 1:2 with lines title "Salario medio" lt rgb "blue", \
-     '../Dados/mercado.csv' using 1:3 with lines title "Preco medio" lt rgb "red"
+# Gráfico 1: Variáveis principais - Preço Médio
+set title "Preco medio"
+plot '../Dados/mercado.csv' using 1:3 with lines title "Preco medio" lt rgb "red"
 
 # Gráfico 2: Producao e Consumo
 set title "Produção e Consumo"

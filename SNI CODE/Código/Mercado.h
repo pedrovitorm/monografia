@@ -86,7 +86,6 @@ public:
         }
     }
     void firmas_contratam();
-    void firmas_demitem();
     void firmas_demitem_todos();
 
     //TRABALHADORES__________________________________________________________________________________________
@@ -95,7 +94,6 @@ public:
         trabalhadores_no_mercado = trabalhador;
     }
     void trabalhadores_consomem();
-    void trabalhadores_se_demitem();
 
     //FUNCOES PARA FORNECER DADOS DO MERCADO__________________________________________________________________
     void imprime_mercado();
@@ -370,7 +368,7 @@ void Mercado::trabalhadores_consomem(){
     // Para cada trabalhador, eles tentam consumir até que sua renda acabe
     for (auto &trabalhador : trabalhadores_empregados) {
         num_tentativas = 0;
-        while ((trabalhador->get_produtod_consumidos() < 10) && (num_tentativas < TENTATIVAS_COMPRA_MAX)) { //PARAMETRO
+        while ((trabalhador->get_salario() > 0) && (num_tentativas < TENTATIVAS_COMPRA_MAX)) { //PARAMETRO
             // Seleciona uma firma aleatória
             auto &firma = firmas[distrib_firma(gen)];
 
