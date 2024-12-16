@@ -1,12 +1,11 @@
 possiveis melhorias:
 mudar comportamento da disposicao salarial e de precos do trabalhador
 (aumenta ou diminui disposicao de preco de acordo com tempo sem consumir e salario) ########
-(mudanca da disposicao diferente para trabalhador e firma (mais trabalhadores do que firmas jogam o salario para baixo))
-firma diminui ou aumenta disposicao salarial de acordo com os Estoques
-
-soluções em implementação:
 ajuste de preco e salario de cada agente será individual (media e dp)
-adicionar curva de gini
+Análise de distribuição de renda, variando a homogeneidade dos agentes (curva de lorenz)
+adicionar salário real
+adicionar governo
+POSSÍVEIS MELHORIAS DO MODELO E MELHOR REPRESENTAÇÃO DO SISTEMA DE INOVAÇÃO
 
 Possibilidade de implementação do governo:
 Pode fazer política fiscal, comprar produtos e contratar trabalhadores, cobrar impostos.
